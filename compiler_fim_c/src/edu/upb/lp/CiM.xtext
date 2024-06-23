@@ -1,0 +1,9 @@
+grammar edu.upb.lp.CiM with org.eclipse.xtext.common.Terminals
+
+generate ciM "http://www.upb.edu/lp/CiM"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';

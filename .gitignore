@@ -1,0 +1,57 @@
+# Eclipse project files
+/.settings/
+/.project
+/.classpath
+
+# Maven target directory
+/target/
+
+# Gradle build directories
+/.gradle/
+/build/
+
+# Temporary files
+*.tmp
+*.log
+*.swp
+*~
+
+# Compiled class files
+*.class
+
+# Generated files and folders
+/src-gen/
+/xtend-gen/
+/model/generated/
+
+# Xtext artifacts
+*.xtextbin
+
+# Local environment configuration
+/local.properties
+
+# Eclipse configuration files
+/.metadata/
+bin/
+
+# MacOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+
+# IDE specific files
+.idea/
+*.iml
+
+# Node and npm specific files
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python virtual environment
+.venv/
+
+# Temporary files and folders
+tmp/
+temp/
