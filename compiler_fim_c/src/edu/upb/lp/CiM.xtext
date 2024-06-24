@@ -4,45 +4,53 @@ generate ciM "http://www.upb.edu/lp/CiM"
 
 Program:
 	"Dear Princess Celestia:" name=ID "{"
-	atributtes += Variable*	
+	atributtes+=Variable*
 	func+=Function*
-	"Today" main = Function
+	"Today" main=Function
 	"}"
 	"Your faithful student, CiM Compiler;";
 
 Function:
-	"I learned" nameOpen=ID 'using'? (params += Parameter (',' params += Parameter)*)?  
-		toEval = Expression ";"		
-	"That's all about" nameClose=ID;
+	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' ('with' returnType=Type)?
+	var=Variable
+	toEval=Expression ";"
+	("Then you get" returnValue=Expression)?
+	"That's all about" nameClose=ID
+;
+
+FunctionCall:
+	("I would" | "I remembered")? function=[Function] 'using' '( ' (args+=Expression (',' args+=Expression)*)? ')'
+;
 
 Parameter:
-	name=ID
-;
+	name=ID ":" type=Type;
 
 Type:
-	"Bool" | "Int"| "String" 
-;
+	"Bool" | "Int" | "String";
 
 Literal:
-	BooleanLiteral | INT | STRING
+	BooleanLiteral | IntLiteral | StringLiteral;
+	
+IntLiteral:
+	INT // HACER COMO BOOLEAN LITERAL INVESTIGAR UNASSIGNED RULE CALL
+;
+
+StringLiteral:
+	STRING // HACER COMO BOOLEAN LITERAL
 ;
 
 BooleanLiteral:
-	"yes" | "true" | "right" | "correct"
-;
-	
-Variable:
-	type=Type name=ID "=" value=Expression ";"
-;
+	(value ?= ("yes" | "true" | "right" | "correct")) | {BooleanLiteral} ("false");
 
+Variable:
+	type=Type name=ID "=" value=Expression ";";
 
 Expression:
-	Literal 
-;
+	Literal | var=[Variable];
+
 
 ArithmeticExpr:
-	STRING
-//	Expression "added to" Expression |
+	STRING//	Expression "added to" Expression |
 //	Expression "plus" Expression |
 //	Expression "minus" Expression |
 //	Expression "without" Expression |

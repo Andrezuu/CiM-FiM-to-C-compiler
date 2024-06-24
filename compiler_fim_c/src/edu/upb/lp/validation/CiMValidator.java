@@ -30,31 +30,31 @@ public class CiMValidator extends AbstractCiMValidator {
 //		}
 //	}
 
-	@Check
-	public void isFunctionOpenEqualClose(Function f) {
-		if (!(f.getNameOpen().equals(f.getNameClose()))) {
-			error("Closing name should be the same as header", CiMPackage.Literals.FUNCTION__NAME_CLOSE);
-		}
-	}
+//	@Check
+//	public void isFunctionOpenEqualClose(Function f) {
+//		if (!(f.getName().equals(f.getNameClose()))) {
+//			error("Closing name should be the same as header", CiMPackage.Literals.FUNCTION__NAME_CLOSE);
+//		}
+//	}
 
-	@Check
-	public void checkType(Variable v) {
-		String value = v.getValue();
-		String type = v.getType();
-		Set<String> boolLiterals = Set.of("yes", "true", "right", "correct");
-		if (type.equals("Int")) {
-			try {
-				Integer.parseInt(value);
-			} catch (NumberFormatException e) {
-				error("Type mismatch: Expected an integer value.", CiMPackage.Literals.VARIABLE__VALUE);
-			}
-		}
-		if (type.equals("Bool") && !boolLiterals.contains(value)) {
-			error("Type mismatch: Expected a boolean value.", CiMPackage.Literals.VARIABLE__VALUE);
-		}
-		if (type.equals("String") && !(value.startsWith("\"") && value.endsWith("\""))) {
-			error("Type mismatch: Expected a string between double quotes", CiMPackage.Literals.VARIABLE__VALUE);
-		}
-	}
+//	@Check
+//	public void checkType(Variable v) {
+//		Expression value = v.getValue();
+//		String type = v.getType();
+//		Set<String> boolLiterals = Set.of("yes", "true", "right", "correct");
+//		if (type.equals("Int")) {
+//			try {
+//				Integer.parseInt(value);
+//			} catch (NumberFormatException e) {
+//				error("Type mismatch: Expected an integer value.", CiMPackage.Literals.VARIABLE__VALUE);
+//			}
+//		}
+//		if (type.equals("Bool") && !boolLiterals.contains(value)) {
+//			error("Type mismatch: Expected a boolean value.", CiMPackage.Literals.VARIABLE__VALUE);
+//		}
+//		if (type.equals("String") && !(value.startsWith("\"") && value.endsWith("\""))) {
+//			error("Type mismatch: Expected a string between double quotes", CiMPackage.Literals.VARIABLE__VALUE);
+//		}
+//	}
 
 }
