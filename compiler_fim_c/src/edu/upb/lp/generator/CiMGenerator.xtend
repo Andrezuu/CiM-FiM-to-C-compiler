@@ -3,7 +3,7 @@
  */
 package edu.upb.lp.generator
 
-//import edu.upb.lp.ciM.
+import edu.upb.lp.ciM.Program
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
@@ -22,17 +22,17 @@ class CiMGenerator extends AbstractGenerator {
 //				.filter(Greeting)
 //				.map[name]
 //				.join(', '))
-//		val p = resource.allContents.head as Program
-//		fsa.generateFile(p.name + ".cpp", generateProgram(p));
+		val p = resource.allContents.head as Program
+		fsa.generateFile(p.name + ".cpp", generateProgram(p));
 	}
 
-//	def generateProgram(Program p) '''
-//		#include <iostream>
-//		using namespace std;
-//			
-//		int main() {
-//			«FOR f: p.func»cout<<"«f.toEval»"<<endl;«ENDFOR»
-//			return 0;
-//		}
-//	'''
+	def generateProgram(Program p) '''
+		#include <iostream>
+		using namespace std;
+		«FOR a: p.atributtes» «a.type» «a.name» = «a.value» «ENDFOR»	
+		int main() {
+			«FOR f: p.func»cout<<"«f.toEval»"<<endl;«ENDFOR»
+			return 0;
+		}
+	'''
 }

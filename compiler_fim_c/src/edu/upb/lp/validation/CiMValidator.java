@@ -3,14 +3,22 @@
  */
 package edu.upb.lp.validation;
 
+import java.util.Set;
+
+import org.eclipse.xtext.validation.Check;
+
+import edu.upb.lp.ciM.CiMPackage;
+import edu.upb.lp.ciM.Function;
+import edu.upb.lp.ciM.Variable;
 
 /**
- * This class contains custom validation rules. 
+ * This class contains custom validation rules.
  *
- * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
+ * See
+ * https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class CiMValidator extends AbstractCiMValidator {
-	
+
 //	public static final String INVALID_NAME = "invalidName";
 //
 //	@Check
@@ -21,5 +29,32 @@ public class CiMValidator extends AbstractCiMValidator {
 //					INVALID_NAME);
 //		}
 //	}
-	
+
+	@Check
+	public void isFunctionOpenEqualClose(Function f) {
+		if (!(f.getNameOpen().equals(f.getNameClose()))) {
+			error("Closing name should be the same as header", CiMPackage.Literals.FUNCTION__NAME_CLOSE);
+		}
+	}
+
+	@Check
+	public void checkType(Variable v) {
+		String value = v.getValue();
+		String type = v.getType();
+		Set<String> boolLiterals = Set.of("yes", "true", "right", "correct");
+		if (type.equals("Int")) {
+			try {
+				Integer.parseInt(value);
+			} catch (NumberFormatException e) {
+				error("Type mismatch: Expected an integer value.", CiMPackage.Literals.VARIABLE__VALUE);
+			}
+		}
+		if (type.equals("Bool") && !boolLiterals.contains(value)) {
+			error("Type mismatch: Expected a boolean value.", CiMPackage.Literals.VARIABLE__VALUE);
+		}
+		if (type.equals("String") && !(value.startsWith("\"") && value.endsWith("\""))) {
+			error("Type mismatch: Expected a string between double quotes", CiMPackage.Literals.VARIABLE__VALUE);
+		}
+	}
+
 }

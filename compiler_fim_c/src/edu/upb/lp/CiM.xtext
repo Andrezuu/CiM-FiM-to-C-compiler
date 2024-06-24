@@ -4,14 +4,14 @@ generate ciM "http://www.upb.edu/lp/CiM"
 
 Program:
 	"Dear Princess Celestia:" name=ID "{"
-	atributtes += Type*	
+	atributtes += Variable*	
 	func+=Function*
 	"Today" main = Function
 	"}"
 	"Your faithful student, CiM Compiler;";
 
 Function:
-	"I learned" nameOpen=ID 'using' (params += Parameter (',' params += Parameter)*)? ')' 
+	"I learned" nameOpen=ID 'using'? (params += Parameter (',' params += Parameter)*)?  
 		toEval = Expression ";"		
 	"That's all about" nameClose=ID;
 
@@ -24,15 +24,15 @@ Type:
 ;
 
 Literal:
-	Boolean | INT | STRING
+	BooleanLiteral | INT | STRING
 ;
 
-Boolean:
+BooleanLiteral:
 	"yes" | "true" | "right" | "correct"
 ;
 	
 Variable:
-	expr = Expression
+	type=Type name=ID "=" value=Expression ";"
 ;
 
 
