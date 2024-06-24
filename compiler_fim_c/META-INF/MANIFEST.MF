@@ -8,5 +8,21 @@ Bundle-SymbolicName: compiler_fim_c; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.xbase,
- org.eclipse.equinox.common;bundle-version="3.16.0"
+ org.eclipse.equinox.common;bundle-version="3.16.0",
+ org.eclipse.emf.ecore,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.35.0",
+ org.eclipse.emf.common,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
+Export-Package: edu.upb.lp.validation,
+ edu.upb.lp.ciM.util,
+ edu.upb.lp.services,
+ edu.upb.lp,
+ edu.upb.lp.serializer,
+ edu.upb.lp.ciM.impl,
+ edu.upb.lp.parser.antlr.internal,
+ edu.upb.lp.ciM,
+ edu.upb.lp.generator,
+ edu.upb.lp.parser.antlr,
+ edu.upb.lp.scoping
+Import-Package: org.apache.log4j

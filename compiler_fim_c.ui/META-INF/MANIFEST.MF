@@ -12,6 +12,13 @@ Require-Bundle: compiler_fim_c,
  org.eclipse.xtext.ui.shared,
  org.eclipse.xtext.ui.codetemplates.ui,
  org.eclipse.ui.editors;bundle-version="3.14.300",
- org.eclipse.ui.ide;bundle-version="3.18.500"
+ org.eclipse.ui.ide;bundle-version="3.18.500",
+ org.eclipse.ui,
+ org.eclipse.compare,
+ org.eclipse.xtext.builder
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-21
+Export-Package: edu.upb.lp.ui.contentassist,
+ compiler_fim_c.ui.internal,
+ edu.upb.lp.ui.quickfix
+Bundle-Activator: compiler_fim_c.ui.internal.Compiler_fim_cActivator

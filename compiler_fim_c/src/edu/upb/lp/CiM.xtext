@@ -2,8 +2,51 @@ grammar edu.upb.lp.CiM with org.eclipse.xtext.common.Terminals
 
 generate ciM "http://www.upb.edu/lp/CiM"
 
-Model:
-	greetings+=Greeting*;
+Program:
+	"Dear Princess Celestia:" name=ID "{"
+	atributtes += Type*	
+	func+=Function*
+	"Today" main = Function
+	"}"
+	"Your faithful student, CiM Compiler;";
+
+Function:
+	"I learned" nameOpen=ID 'using' (params += Parameter (',' params += Parameter)*)? ')' 
+		toEval = Expression ";"		
+	"That's all about" nameClose=ID;
+
+Parameter:
+	name=ID
+;
+
+Type:
+	"Bool" | "Int"| "String" 
+;
+
+Literal:
+	Boolean | INT | STRING
+;
+
+Boolean:
+	"yes" | "true" | "right" | "correct"
+;
 	
-Greeting:
-	'Hello' name=ID '!';
+Variable:
+	expr = Expression
+;
+
+
+Expression:
+	Literal 
+;
+
+ArithmeticExpr:
+	STRING
+//	Expression "added to" Expression |
+//	Expression "plus" Expression |
+//	Expression "minus" Expression |
+//	Expression "without" Expression |
+//	Expression "multiplied with" Expression |
+//	Expression "times" Expression |
+//	Expression "divided by" Expression	
+;
