@@ -11,15 +11,15 @@ Program:
 	"Your faithful student, CiM Compiler;";
 
 Function:
-	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' ('with' returnType=Type)?
-	var=Variable
+	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' (('with' | 'to get') returnType=Type)?
+	vars+=Variable*
 	toEval=Expression ";"
 	("Then you get" returnValue=Expression)?
 	"That's all about" nameClose=ID
 ;
 
 FunctionCall:
-	("I would" | "I remembered")? function=[Function] 'using' '( ' (args+=Expression (',' args+=Expression)*)? ')'
+	("I would" | "I remembered")? function=[Function] 'using' '(' (args+=Expression (',' args+=Expression)*)? ')' ";"
 ;
 
 Parameter:
@@ -32,21 +32,21 @@ Literal:
 	BooleanLiteral | IntLiteral | StringLiteral;
 	
 IntLiteral:
-	INT // HACER COMO BOOLEAN LITERAL INVESTIGAR UNASSIGNED RULE CALL
+	{IntLiteral} value=INT // HACER COMO BOOLEAN LITERAL INVESTIGAR UNASSIGNED RULE CALL
 ;
 
 StringLiteral:
-	STRING // HACER COMO BOOLEAN LITERAL
+	{StringLiteral} value=STRING // HACER COMO BOOLEAN LITERAL
 ;
 
 BooleanLiteral:
-	(value ?= ("yes" | "true" | "right" | "correct")) | {BooleanLiteral} ("false");
+	{BooleanLiteral} (value ?= ("yes" | "true" | "right" | "correct")) | {BooleanLiteral} ( value ?= ("false" | "incorrect" | "no" | "wrong"));
 
 Variable:
-	type=Type name=ID "=" value=Expression ";";
+	"Did you know that" name=ID ("is" | "was" | "has" | "had" | "like" | "likes" | "liked") type=Type value=Expression ";";
 
 Expression:
-	Literal | var=[Variable];
+	Literal | var=[Variable] | FunctionCall;
 
 
 ArithmeticExpr:
