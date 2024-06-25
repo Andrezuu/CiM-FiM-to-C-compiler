@@ -8,7 +8,7 @@ Program:
 	func+=Function*
 	"Today" main=Function
 	"}"
-	"Your faithful student, CiM Compiler;";
+	"Your faithful student," coderName=ID ".  ";
 
 Function:
 	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' (('with' | 'to get') returnType=Type)?
@@ -26,10 +26,10 @@ Parameter:
 	name=ID ":" type=Type;
 
 Type:
-	"Bool" | "Int" | "String";
+	"Bool" | "Int" | "String"  | "Int[]" | "Bool[]";
 
 Literal:
-	BooleanLiteral | IntLiteral | StringLiteral;
+	BooleanLiteral | IntLiteral | StringLiteral | IntArrayLiteral | BooleanArrayLiteral;
 	
 IntLiteral:
 	{IntLiteral} value=INT // HACER COMO BOOLEAN LITERAL INVESTIGAR UNASSIGNED RULE CALL
@@ -41,6 +41,14 @@ StringLiteral:
 
 BooleanLiteral:
 	{BooleanLiteral} (value ?= ("yes" | "true" | "right" | "correct")) | {BooleanLiteral} ( value ?= ("false" | "incorrect" | "no" | "wrong"));
+	
+IntArrayLiteral:
+	'[' values+=INT (',' values+=INT)* ']'
+;
+
+BooleanArrayLiteral:
+	'[' values+=BooleanLiteral (',' values+=BooleanLiteral)* ']'
+;
 
 Variable:
 	"Did you know that" name=ID ("is" | "was" | "has" | "had" | "like" | "likes" | "liked") type=Type value=Expression ";";
@@ -48,13 +56,6 @@ Variable:
 Expression:
 	Literal | var=[Variable] | FunctionCall;
 
-
-ArithmeticExpr:
-	STRING//	Expression "added to" Expression |
-//	Expression "plus" Expression |
-//	Expression "minus" Expression |
-//	Expression "without" Expression |
-//	Expression "multiplied with" Expression |
-//	Expression "times" Expression |
-//	Expression "divided by" Expression	
+Comment:
+	("P.")+"S." comment=STRING
 ;
