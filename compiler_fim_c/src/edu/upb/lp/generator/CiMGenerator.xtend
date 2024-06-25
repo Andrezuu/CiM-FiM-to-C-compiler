@@ -29,10 +29,10 @@ class CiMGenerator extends AbstractGenerator {
 	def generateProgram(Program p) '''
 		#include <iostream>
 		using namespace std;
-		«FOR a: p.atributtes» «a.type» «a.name» = «a.value» «ENDFOR»	
-		int main() {
-			«FOR f: p.func»cout<<"«f.toEval»"<<endl;«ENDFOR»
-			return 0;
-		}
+«««		«FOR a: p.atributtes» «a.type» «a.name» = «a.value» «ENDFOR»	
+«««		int main() {
+«««			«FOR f: p.func»cout<<"«f.toEval»"<<endl;«ENDFOR»
+«««			return 0;
+«««		}
 	'''
 }

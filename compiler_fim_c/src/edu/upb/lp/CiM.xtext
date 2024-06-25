@@ -4,33 +4,31 @@ generate ciM "http://www.upb.edu/lp/CiM"
 
 Program:
 	"Dear Princess Celestia:" name=ID "{"
-	atributtes+=Variable*
-	func+=Function*
+	(atributtes+=Variable | func+=Function)
 	"Today" main=Function
 	"}"
-	"Your faithful student," coderName=ID ".  ";
+	"Your faithful student," coderName=ID ".";
 
 Function:
-	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' (('with' | 'to get') returnType=Type)?
-	vars+=Variable*
-	toEval=Expression ";"
+	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' (('with' | 'to get')
+	returnType=Type)?
+	vars+=Variable* | statements+=Statement+
 	("Then you get" returnValue=Expression)?
-	"That's all about" nameClose=ID
-;
+	"That's all about" nameClose=ID;
 
 FunctionCall:
-	("I would" | "I remembered")? function=[Function] 'using' '(' (args+=Expression (',' args+=Expression)*)? ')' ";"
-;
+	("I would" | "I remembered")? function=[Function] 'using' '(' (args+=Expression (',' args+=Expression)*)? ')' ";";
 
 Parameter:
 	name=ID ":" type=Type;
 
 Type:
-	"Bool" | "Int" | "String"  | "Int[]" | "Bool[]";
+	"Bool" | "Int" | "String" | "Int[]" | "Bool[]";
 
+////
 Literal:
-	BooleanLiteral | IntLiteral | StringLiteral | IntArrayLiteral | BooleanArrayLiteral;
-	
+	BooleanLiteral | IntLiteral | StringLiteral; // | IntArrayLiteral | BooleanArrayLiteral;
+
 IntLiteral:
 	{IntLiteral} value=INT // HACER COMO BOOLEAN LITERAL INVESTIGAR UNASSIGNED RULE CALL
 ;
@@ -40,22 +38,132 @@ StringLiteral:
 ;
 
 BooleanLiteral:
-	{BooleanLiteral} (value ?= ("yes" | "true" | "right" | "correct")) | {BooleanLiteral} ( value ?= ("false" | "incorrect" | "no" | "wrong"));
-	
-IntArrayLiteral:
-	'[' values+=INT (',' values+=INT)* ']'
-;
+	{BooleanLiteral} (value?=("yes" | "true" | "right" | "correct")) | {BooleanLiteral} (value?=("false" | "incorrect" |
+	"no" | "wrong"));
 
-BooleanArrayLiteral:
-	'[' values+=BooleanLiteral (',' values+=BooleanLiteral)* ']'
-;
-
+//IntArrayLiteral:
+//	'[' values+=INT (',' values+=INT)* ']';
+//
+//BooleanArrayLiteral:
+//	'[' values+=BooleanLiteral (',' values+=BooleanLiteral)* ']';
 Variable:
-	"Did you know that" name=ID ("is" | "was" | "has" | "had" | "like" | "likes" | "liked") type=Type value=Expression ";";
+	"Did you know that" name=ID
+	("is" | "was" | "has" | "had" | "like" | "likes" | "liked") type=Type (value=Expression)? ";";
 
 Expression:
-	Literal | var=[Variable] | FunctionCall;
+	Literal | VariableReference | FunctionCall | MathExpression;
+
+VariableReference:
+	var=[Variable];
+
+IntExpression:
+	IntLiteral | MathExpression;
+
+NoTypeExpression:
+	VariableReference | FunctionCall;
+
+MathExpression:
+	Increment | Decrement | Sum | Substraction | Multiplication | Division; // | Suma | Resta | Multiplicacion | Division;
+
+BooleanExpression:
+	BooleanLiteral | Equal | NotEqual | LessThan | LessThanOrEqual | MoreThan | MoreThanOrEqual;
 
 Comment:
-	("P.")+"S." comment=STRING
-;
+	("P.")+ "S." comment=STRING;
+
+// OPERADORES
+Increment:
+	var=[Variable] "got one more";
+
+Decrement:
+	var=[Variable] "got one less";
+
+Sum:
+	("add" val1=IntLiteral "and" val2=IntLiteral);
+
+Substraction:
+	("substract" | "the difference between") val1=IntLiteral "and" val2=IntLiteral;
+
+Multiplication:
+	("multiply" val1=IntLiteral "and" val2=IntLiteral);
+
+Division:
+	("divide" val1=IntLiteral ("and" | "by") val2=IntLiteral);
+
+Statement:
+	Print | Input | IfStatement | //ForStatement | ForEachStatement | WhileStatement | DoWhileStatement |
+	VariableAssignment;
+
+VariableAssignment:
+	VariableReference ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
+
+Print:
+	"I" ("said" | "wrote" | "sang" | "thought") value=Expression ";";
+
+Input:
+	"I" ("heard" | "read" | "asked") var=[Variable] (prompt=STRING)?;
+
+//COMPRACIONES
+Comparador:
+	"is" | "was" | "has" | "had";
+
+Equal:
+	Comparador val1=BooleanLiteral "equal to" val2=BooleanLiteral;
+
+NotEqual:
+	Comparador val1=BooleanLiteral "not equal to" val2=BooleanLiteral;
+
+LessThan:
+	Comparador val1=BooleanLiteral "less than" val2=BooleanLiteral;
+
+LessThanOrEqual:
+	Comparador val1=BooleanLiteral "less or equal to" val2=BooleanLiteral;
+
+MoreThan:
+	Comparador val1=BooleanLiteral ("more" | "greater") "than" val2=BooleanLiteral;
+
+MoreThanOrEqual:
+	Comparador val1=BooleanLiteral "more or equal to" val2=BooleanLiteral;
+
+//INSTRUCCIONES DE CONTROL DE FLUJO
+//Conditional
+IfStatement:
+	("If" | "When") condition=BooleanExpression "then" "{"
+	(vars+=Variable | statements+=Statement)*
+	("That's what I would do" | else=ElseStatement) "}";
+
+ElseStatement:
+	("Otherwise" | "Or else") "{"
+	vars+=Variable*
+//	assigns+=VariableAssignment*
+//	expr+=Expression*
+	"That's what I would do" "}";
+
+WhileStatement:
+	("Here's what I did" | "As long as") condition=BooleanExpression "{"
+	vars+=Variable*
+//	assigns+=VariableAssignment*
+//	expr+=Expression*
+	"That's what I did" "}";
+
+DoWhileStatement:
+	"Here's what I did" "{"
+	vars+=Variable*
+//	assigns+=VariableAssignment*
+//	expr+=Expression*
+	"}" "I did this" ("while" | "as long as") condition=BooleanExpression;
+
+ForStatement:
+	"For every" var=Variable "from" val1=IntLiteral "to" val2=IntLiteral "{"
+	vars+=Variable*
+//	assigns+=VariableAssignment*
+//	expr+=Expression*
+	"That's what I did" "}";
+
+ForEachStatement:
+	"For every" var=Variable "in" arrayValue=Literal "{"
+	vars+=Variable*
+//	assigns+=VariableAssignment*
+//	expr+=Expression*
+	"That's what I did"
+	"}";
