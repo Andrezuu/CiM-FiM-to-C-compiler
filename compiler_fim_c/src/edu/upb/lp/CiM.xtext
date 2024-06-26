@@ -4,20 +4,20 @@ generate ciM "http://www.upb.edu/lp/CiM"
 
 Program:
 	"Dear Princess Celestia:" name=ID "{"
-	(atributtes+=Variable | func+=Function)
+	(atributtes+=Variable | func+=Function)*
 	"Today" main=Function
 	"}"
 	"Your faithful student," coderName=ID ".";
 
 Function:
 	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' (('with' | 'to get')
-	returnType=Type)?
-	vars+=Variable* | statements+=Statement+
+	returnType=Type)? "{"
+	(vars+=Variable | statements+=Statement)*
 	("Then you get" returnValue=Expression)?
-	"That's all about" nameClose=ID;
+	"That's all about" nameClose=ID "}";
 
 FunctionCall:
-	("I would" | "I remembered")? function=[Function] 'using' '(' (args+=Expression (',' args+=Expression)*)? ')' ";";
+	("I would" | "I remembered")? function=[Function] 'using' '(' (args+=Expression (',' args+=Expression)*)? ')';
 
 Parameter:
 	name=ID ":" type=Type;
@@ -51,10 +51,10 @@ Variable:
 	("is" | "was" | "has" | "had" | "like" | "likes" | "liked") type=Type (value=Expression)? ";";
 
 Expression:
-	Literal | VariableReference | FunctionCall | MathExpression;
+	Literal | NoTypeExpression | MathExpression;
 
 VariableReference:
-	var=[Variable];
+	var=[Variable|ID];
 
 IntExpression:
 	IntLiteral | MathExpression;
@@ -66,7 +66,7 @@ MathExpression:
 	Increment | Decrement | Sum | Substraction | Multiplication | Division; // | Suma | Resta | Multiplicacion | Division;
 
 BooleanExpression:
-	BooleanLiteral | Equal | NotEqual | LessThan | LessThanOrEqual | MoreThan | MoreThanOrEqual;
+	BooleanLiteral | Comparison;
 
 Comment:
 	("P.")+ "S." comment=STRING;
@@ -91,19 +91,22 @@ Division:
 	("divide" val1=IntLiteral ("and" | "by") val2=IntLiteral);
 
 Statement:
-	Print | Input | IfStatement | //ForStatement | ForEachStatement | WhileStatement | DoWhileStatement |
+	Print | Input | IfStatement | // ForStatement | ForEachStatement | WhileStatement | DoWhileStatement |
 	VariableAssignment;
 
 VariableAssignment:
 	VariableReference ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
 
 Print:
-	"I" ("said" | "wrote" | "sang" | "thought") value=Expression ";";
+	"I " ("said" | "wrote" | "sang" | "thought") value=Expression ";";
 
 Input:
-	"I" ("heard" | "read" | "asked") var=[Variable] (prompt=STRING)?;
+	"I " ("heard" | "read" | "asked") var=[Variable] (prompt=STRING)? ";";
 
 //COMPRACIONES
+Comparison:
+	Equal | NotEqual | LessThan | LessThanOrEqual | MoreThan | MoreThanOrEqual;
+
 Comparador:
 	"is" | "was" | "has" | "had";
 

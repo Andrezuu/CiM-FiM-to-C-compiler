@@ -3,7 +3,9 @@
  */
 package edu.upb.lp.generator
 
+import edu.upb.lp.ciM.Function
 import edu.upb.lp.ciM.Program
+import edu.upb.lp.ciM.Variable
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
@@ -27,12 +29,28 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def generateProgram(Program p) '''
-		#include <iostream>
-		using namespace std;
-«««		«FOR a: p.atributtes» «a.type» «a.name» = «a.value» «ENDFOR»	
-«««		int main() {
+	#include <iostream>
+	using namespace std;
+	«FOR atribute : p.atributtes» «atribute.type» «atribute.name» = «atribute.value»";" «ENDFOR»
+	«FOR function: p.func» «processFunction(function)» «ENDFOR» 
+	«««		int main() {
 «««			«FOR f: p.func»cout<<"«f.toEval»"<<endl;«ENDFOR»
 «««			return 0;
 «««		}
 	'''
+	
+	def processFunction(Function function) { '''
+		«function.returnType» «function.name» 
+		(«function.params.head» «FOR paramsToAdd: function.params.tail» «ENDFOR»{
+			«FOR variables: function.vars» «ENDFOR»			
+			
+	}	
+	
+	'''
+	}
+	
+	
+	def processVariables(Variable variable) {
+		
+	}
 }
