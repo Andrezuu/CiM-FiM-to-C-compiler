@@ -3,9 +3,13 @@
  */
 package edu.upb.lp.generator
 
+import edu.upb.lp.ciM.Expression
 import edu.upb.lp.ciM.Function
+import edu.upb.lp.ciM.IntLiteral
+import edu.upb.lp.ciM.Parameter
 import edu.upb.lp.ciM.Program
 import edu.upb.lp.ciM.Variable
+import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
@@ -28,29 +32,41 @@ class CiMGenerator extends AbstractGenerator {
 		fsa.generateFile(p.name + ".cpp", generateProgram(p));
 	}
 
-	def generateProgram(Program p) '''
-	#include <iostream>
-	using namespace std;
-	«FOR atribute : p.atributtes» «atribute.type» «atribute.name» = «atribute.value»";" «ENDFOR»
-	«FOR function: p.func» «processFunction(function)» «ENDFOR» 
-	«««		int main() {
-«««			«FOR f: p.func»cout<<"«f.toEval»"<<endl;«ENDFOR»
-«««			return 0;
-«««		}
-	'''
-	
-	def processFunction(Function function) { '''
-		«function.returnType» «function.name» 
-		(«function.params.head» «FOR paramsToAdd: function.params.tail» «ENDFOR»{
-			«FOR variables: function.vars» «ENDFOR»			
-			
-	}	
-	
+	def generateProgram(Program p) {
+		'''
+		#include <iostream>
+		using namespace std;
+		«FOR atribute : p.atributtes» «processVariable(atribute)» «ENDFOR»
+		«FOR function : p.func» «processFunction(function)» «ENDFOR» 
+		«processFunction(p.main)» return 0;
 	'''
 	}
-	
-	
-	def processVariables(Variable variable) {
-		
+
+	def processFunction(Function function) {
+		'''
+			«IF function.returnType !==null» «function.returnType» «ELSE» void «ENDIF» «function.name» ( «IF !(function.params.isNullOrEmpty)» «processParameters(function.params)» «ENDIF» ) {
+				«FOR variable : function.vars» «processVariable(variable)» «ENDFOR»
+			}
+		'''
 	}
+
+	def processVariable(Variable variable) {
+		'''
+			«variable.type» «variable.name» «IF variable.value !== null»= «processExpression(variable.value)»«ENDIF»;
+		'''
+	}
+
+	def processParameters(EList<Parameter> params) {
+		'''
+		«FOR param : params»«param.type» «param.name»«IF !param.equals(params.last)», «ENDIF»«ENDFOR»
+		'''
+
+	}
+
+	def processExpression(Expression expr) {
+		if (expr instanceof IntLiteral) {
+			return expr.value;
+		}
+	}
+
 }
