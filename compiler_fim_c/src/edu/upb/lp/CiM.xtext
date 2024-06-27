@@ -27,7 +27,7 @@ Type:
 
 ////
 Literal:
-	BooleanLiteral | IntLiteral | StringLiteral; // | IntArrayLiteral | BooleanArrayLiteral;
+	BooleanLiteral | IntLiteral | StringLiteral | IntArrayLiteral | BooleanArrayLiteral;
 
 IntLiteral:
 	{IntLiteral} value=INT // HACER COMO BOOLEAN LITERAL INVESTIGAR UNASSIGNED RULE CALL
@@ -38,24 +38,24 @@ StringLiteral:
 ;
 
 BooleanLiteral:
-	{BooleanLiteral} value="2"("true" | "false");
+	{BooleanLiteral} value=("true" | "false");
 
 //TrueLiteral:
 //    {TrueLiteral} (value?=('yes' | 'true' | 'right' | 'correct'));
 //
 //FalseLiteral:
 //    {FalseLiteral} (value?=('no' | 'false' | 'incorrect' | 'wrong'));
-//IntArrayLiteral:
-//	'[' values+=INT (',' values+=INT)* ']';
-//
-//BooleanArrayLiteral:
-//	'[' values+=BooleanLiteral (',' values+=BooleanLiteral)* ']';
+IntArrayLiteral:
+	'[' values+=INT (',' values+=INT)* ']';
+
+BooleanArrayLiteral:
+	'[' values+=BooleanLiteral (',' values+=BooleanLiteral)* ']';
 Variable:
 	"Did you know that" name=ID
 	("is" | "was" | "has" | "had" | "like" | "likes" | "liked") type=Type (value=Expression)? ";";
 
 Expression:
-	Literal | NoTypeExpression | MathExpression;// | BooleanExpression;
+	NoTypeExpression | MathExpression | BooleanExpression;
 
 VariableReference:
 	var=[Variable];
@@ -95,7 +95,7 @@ Division:
 	("divide" val1=IntLiteral ("and" | "by") val2=IntLiteral);
 
 Statement:
-	Print | Input | IfStatement | // ForStatement | ForEachStatement | WhileStatement | DoWhileStatement |
+	Print | Input | IfStatement |  ForStatement |// ForEachStatement | WhileStatement | DoWhileStatement |
 	VariableAssignment;
 
 VariableAssignment:
@@ -141,7 +141,7 @@ IfStatement:
 
 ElseStatement:
 	("Otherwise" | "Or else") "{"
-	vars+=Variable*
+	(vars+=Variable | statements+=Statement)*
 //	assigns+=VariableAssignment*
 //	expr+=Expression*
 	"That's what I would do" "}";
@@ -162,7 +162,7 @@ DoWhileStatement:
 
 ForStatement:
 	"For every" val1=Variable "from" var=VariableReference "to" val2=IntLiteral "{"
-	vars+=Variable*
+	(vars+=Variable | statements+=Statement)*
 //	assigns+=VariableAssignment*
 //	expr+=Expression*
 	"That's what I did" "}";
