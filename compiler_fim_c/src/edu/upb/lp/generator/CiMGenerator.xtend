@@ -93,8 +93,7 @@ class CiMGenerator extends AbstractGenerator {
 	
 	def dispatch processStatement(ForStatement forStatement) { '''
 		for(«processVariable(forStatement.^var)»;  «val.»
-	'''
-		
+	'''		
 	}
 
 	def processParameters(EList<Parameter> params) {
