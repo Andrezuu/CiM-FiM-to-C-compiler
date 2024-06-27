@@ -3,11 +3,17 @@
  */
 package edu.upb.lp.generator
 
-import edu.upb.lp.ciM.Expression
+import edu.upb.lp.ciM.BooleanExpression
+import edu.upb.lp.ciM.BooleanLiteral
+import edu.upb.lp.ciM.ElseStatement
+import edu.upb.lp.ciM.ForStatement
 import edu.upb.lp.ciM.Function
-import edu.upb.lp.ciM.IntLiteral
+import edu.upb.lp.ciM.IfStatement
+import edu.upb.lp.ciM.Input
 import edu.upb.lp.ciM.Parameter
+import edu.upb.lp.ciM.Print
 import edu.upb.lp.ciM.Program
+import edu.upb.lp.ciM.StringLiteral
 import edu.upb.lp.ciM.Variable
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.resource.Resource
@@ -34,12 +40,13 @@ class CiMGenerator extends AbstractGenerator {
 
 	def generateProgram(Program p) {
 		'''
-		#include <iostream>
-		using namespace std;
-		«FOR atribute : p.atributtes» «processVariable(atribute)» «ENDFOR»
-		«FOR function : p.func» «processFunction(function)» «ENDFOR» 
-		«processFunction(p.main)» return 0;
-	'''
+			#include <iostream>
+			using namespace std;
+			«FOR atribute : p.attributes» «processVariable(atribute)» «ENDFOR»
+			«FOR function : p.func» «processFunction(function)» «ENDFOR» 
+			«processFunction(p.main)»
+			return 0;
+		'''
 	}
 
 	def processFunction(Function function) {
@@ -56,17 +63,56 @@ class CiMGenerator extends AbstractGenerator {
 		'''
 	}
 
-	def processParameters(EList<Parameter> params) {
+	def dispatch processStatement(ElseStatement elseStatement) {
 		'''
-		«FOR param : params»«param.type» «param.name»«IF !param.equals(params.last)», «ENDIF»«ENDFOR»
+			else {
+				«FOR variable : elseStatement.vars»«processVariable(variable)»«ENDFOR»
+			}
 		'''
-
 	}
 
-	def processExpression(Expression expr) {
-		if (expr instanceof IntLiteral) {
-			return expr.value;
-		}
+	def dispatch processStatement(IfStatement ifStatement) '''
+        if ( «processExpression(ifStatement.condition)» ) {
+            «FOR variable : ifStatement.vars»«processVariable(variable)»«ENDFOR»
+            «FOR statement : ifStatement.statements»«processStatement(statement)»«ENDFOR»
+        } «IF ifStatement.^else !== null»«processStatement(ifStatement.^else as ElseStatement)»«ENDIF»
+    '''
+
+	def dispatch processStatement(Print printStatement) {
+		'''
+			cout<<«processExpression(printStatement.value)»
+		'''
+	}
+
+	def dispatch processStatement(Input inputStatement) {
+		'''
+			«IF inputStatement.prompt !== null»cout<<«inputStatement.prompt»«ENDIF»
+			cin>>«inputStatement.getVar()»
+		'''
+	}
+	
+	def dispatch processStatement(ForStatement forStatement) { '''
+		for(«processVariable(forStatement.^var)»;  «val.»
+	'''
+		
+	}
+
+	def processParameters(EList<Parameter> params) {
+		'''
+			«FOR param : params»«param.type» «param.name»«IF !param.equals(params.last)», «ENDIF»«ENDFOR»
+		'''
+	}
+	
+	def dispatch processExpression(StringLiteral stringLiteral) {
+		return stringLiteral.value
+	}
+
+	def dispatch processExpression(BooleanExpression booleanExpression) {
+		return true
+	}
+	
+	def processBooleanExpression(BooleanLiteral booleanLiteral) {
+		
 	}
 
 }

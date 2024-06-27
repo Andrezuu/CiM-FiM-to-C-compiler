@@ -4,7 +4,7 @@ generate ciM "http://www.upb.edu/lp/CiM"
 
 Program:
 	"Dear Princess Celestia:" name=ID "{"
-	(atributtes+=Variable | func+=Function)*
+	(attributes+=Variable | func+=Function)*
 	"Today" main=Function
 	"}"
 	"Your faithful student," coderName=ID ".";
@@ -38,9 +38,13 @@ StringLiteral:
 ;
 
 BooleanLiteral:
-	{BooleanLiteral} (value?=("yes" | "true" | "right" | "correct")) | {BooleanLiteral} (value?=("false" | "incorrect" |
-	"no" | "wrong"));
+	{BooleanLiteral} value="2"("true" | "false");
 
+//TrueLiteral:
+//    {TrueLiteral} (value?=('yes' | 'true' | 'right' | 'correct'));
+//
+//FalseLiteral:
+//    {FalseLiteral} (value?=('no' | 'false' | 'incorrect' | 'wrong'));
 //IntArrayLiteral:
 //	'[' values+=INT (',' values+=INT)* ']';
 //
@@ -51,10 +55,10 @@ Variable:
 	("is" | "was" | "has" | "had" | "like" | "likes" | "liked") type=Type (value=Expression)? ";";
 
 Expression:
-	Literal | NoTypeExpression | MathExpression;
+	Literal | NoTypeExpression | MathExpression;// | BooleanExpression;
 
 VariableReference:
-	var=[Variable|ID];
+	var=[Variable];
 
 IntExpression:
 	IntLiteral | MathExpression;
@@ -66,7 +70,7 @@ MathExpression:
 	Increment | Decrement | Sum | Substraction | Multiplication | Division; // | Suma | Resta | Multiplicacion | Division;
 
 BooleanExpression:
-	BooleanLiteral | Comparison;
+	BooleanLiteral; // | Comparison;
 
 Comment:
 	("P.")+ "S." comment=STRING;
@@ -157,7 +161,7 @@ DoWhileStatement:
 	"}" "I did this" ("while" | "as long as") condition=BooleanExpression;
 
 ForStatement:
-	"For every" var=Variable "from" val1=IntLiteral "to" val2=IntLiteral "{"
+	"For every" val1=Variable "from" var=VariableReference "to" val2=IntLiteral "{"
 	vars+=Variable*
 //	assigns+=VariableAssignment*
 //	expr+=Expression*
