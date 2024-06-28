@@ -5,16 +5,27 @@ package edu.upb.lp.generator
 
 import edu.upb.lp.ciM.BooleanExpression
 import edu.upb.lp.ciM.BooleanLiteral
+import edu.upb.lp.ciM.Comparison
 import edu.upb.lp.ciM.ElseStatement
+import edu.upb.lp.ciM.Equal
+import edu.upb.lp.ciM.FalseLiteral
 import edu.upb.lp.ciM.ForStatement
 import edu.upb.lp.ciM.Function
+import edu.upb.lp.ciM.FunctionCall
 import edu.upb.lp.ciM.IfStatement
 import edu.upb.lp.ciM.Input
+import edu.upb.lp.ciM.IntExpression
+import edu.upb.lp.ciM.IntLiteral
+import edu.upb.lp.ciM.MathExpression
+import edu.upb.lp.ciM.NoTypeExpression
+import edu.upb.lp.ciM.NotEqual
 import edu.upb.lp.ciM.Parameter
 import edu.upb.lp.ciM.Print
 import edu.upb.lp.ciM.Program
 import edu.upb.lp.ciM.StringLiteral
+import edu.upb.lp.ciM.TrueLiteral
 import edu.upb.lp.ciM.Variable
+import edu.upb.lp.ciM.VariableReference
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
@@ -41,78 +52,147 @@ class CiMGenerator extends AbstractGenerator {
 	def generateProgram(Program p) {
 		'''
 			#include <iostream>
+			#include <cmath>
 			using namespace std;
 			«FOR atribute : p.attributes» «processVariable(atribute)» «ENDFOR»
 			«FOR function : p.func» «processFunction(function)» «ENDFOR» 
-			«processFunction(p.main)»
-			return 0;
+			«processMainFunction(p.main)»
+			
+		'''
+	}
+
+	def processMainFunction(Function mainFunction) {
+		'''
+			int main() {
+				«FOR variable : mainFunction.vars» «processVariable(variable)» «ENDFOR»
+				«FOR statement : mainFunction.statements»«processStatement(statement)»«ENDFOR»
+				return 0;
+			}
 		'''
 	}
 
 	def processFunction(Function function) {
 		'''
-			«IF function.returnType !==null» «function.returnType» «ELSE» void «ENDIF» «function.name» ( «IF !(function.params.isNullOrEmpty)» «processParameters(function.params)» «ENDIF» ) {
+			«IF function.returnType !==null» «function.returnType.toLowerCase» «ELSE» void «ENDIF» «function.name» ( «IF !(function.params.isNullOrEmpty)» «processParameters(function.params)» «ENDIF» ) {
 				«FOR variable : function.vars» «processVariable(variable)» «ENDFOR»
+				«FOR statement : function.statements»«processStatement(statement)»«ENDFOR»
 			}
 		'''
 	}
 
 	def processVariable(Variable variable) {
 		'''
-			«variable.type» «variable.name» «IF variable.value !== null»= «processExpression(variable.value)»«ENDIF»;
+			«variable.type.toLowerCase» «variable.name» «IF variable.value !== null»= «processExpression(variable.value)»«ENDIF»;
 		'''
 	}
+
+	def processForVariable(Variable variable) {
+		'''
+			«variable.type.toLowerCase» «variable.name»	
+		'''
+	}
+
+	def dispatch processStatement(IfStatement ifStatement) '''
+		if ( «processExpression(ifStatement.condition)» ) {
+		    «FOR variable : ifStatement.vars»«processVariable(variable)»«ENDFOR»
+		    «FOR statement : ifStatement.statements»«processStatement(statement)»«ENDFOR»
+		} «IF ifStatement.^else !== null»«processStatement(ifStatement.^else as ElseStatement)»«ENDIF»
+	'''
 
 	def dispatch processStatement(ElseStatement elseStatement) {
 		'''
 			else {
 				«FOR variable : elseStatement.vars»«processVariable(variable)»«ENDFOR»
+				«FOR statement : elseStatement.statements»«processStatement(statement)»«ENDFOR»
 			}
 		'''
 	}
 
-	def dispatch processStatement(IfStatement ifStatement) '''
-        if ( «processExpression(ifStatement.condition)» ) {
-            «FOR variable : ifStatement.vars»«processVariable(variable)»«ENDFOR»
-            «FOR statement : ifStatement.statements»«processStatement(statement)»«ENDFOR»
-        } «IF ifStatement.^else !== null»«processStatement(ifStatement.^else as ElseStatement)»«ENDIF»
-    '''
-
 	def dispatch processStatement(Print printStatement) {
 		'''
-			cout<<«processExpression(printStatement.value)»
+			cout<<«processExpression(printStatement.value)»;
 		'''
 	}
 
 	def dispatch processStatement(Input inputStatement) {
 		'''
-			«IF inputStatement.prompt !== null»cout<<«inputStatement.prompt»«ENDIF»
-			cin>>«inputStatement.getVar()»
+			«IF inputStatement.prompt !== null»cout<<«inputStatement.prompt»;«ENDIF»
+			cin>>«inputStatement.getVar()»;
 		'''
 	}
-	
-	def dispatch processStatement(ForStatement forStatement) { '''
-		for(«processVariable(forStatement.^var)»;  «val.»
+
+	def dispatch processStatement(ForStatement forStatement) '''
+		for(«processForVariable(forStatement.^var)» = max(«processExpression(forStatement.val1)»,«processExpression(forStatement.val2)»); «forStatement.^var.name» > abs(«processExpression(forStatement.val1)»-«processExpression(forStatement.val2)»); «forStatement.^var.name»--)  {
+			«FOR variable : forStatement.vars»«processVariable(variable)»«ENDFOR»
+			«FOR statement : forStatement.statements»«processStatement(statement)»«ENDFOR»
+		}
 	'''
-		
-	}
 
 	def processParameters(EList<Parameter> params) {
 		'''
-			«FOR param : params»«param.type» «param.name»«IF !param.equals(params.last)», «ENDIF»«ENDFOR»
+			«FOR param : params»«param.type.toLowerCase» «param.name»«IF !param.equals(params.last)», «ENDIF»«ENDFOR»
 		'''
 	}
-	
-	def dispatch processExpression(StringLiteral stringLiteral) {
-		return stringLiteral.value
+
+	def dispatch processExpression(NoTypeExpression noTypeExpression) {
+		processNoTypeExpression(noTypeExpression)
 	}
 
-	def dispatch processExpression(BooleanExpression booleanExpression) {
-		return true
+	def dispatch processExpression(StringLiteral stringLiteral) {
+		'''«stringLiteral.value»'''
 	}
-	
-	def processBooleanExpression(BooleanLiteral booleanLiteral) {
-		
+
+	// BOOLEAN EXPRESSIONS
+	def dispatch processExpression(BooleanExpression booleanExpression) {
+		processBooleanExpression(booleanExpression)
+	}
+
+	def dispatch processBooleanExpression(BooleanLiteral booleanLiteral) {
+		processBooleanLiteral(booleanLiteral)
+	}
+
+	def dispatch processBooleanExpression(Comparison comparison) {
+		processComparison(comparison)
+	}
+
+	// BOOLEAN LITERALS
+	def dispatch processBooleanLiteral(TrueLiteral trueLiteral) {
+		'''true'''
+	}
+
+	def dispatch processBooleanLiteral(FalseLiteral falseLiteral) {
+		'''false'''
+	}
+
+	// COMPARISONS
+	def dispatch processComparison(Equal equal) {
+		'''«processExpression(equal.val1)» == «processExpression(equal.val2)»'''
+	}
+
+	def dispatch processComparison(NotEqual notEqual) {
+		'''«processExpression(notEqual.val1)» != «processExpression(notEqual.val2)»'''
+	}
+
+	def dispatch processExpression(IntExpression intExpression) {
+		processIntExpression(intExpression)
+	}
+
+	// NO TYPE EXPRESSIONS
+	def dispatch processNoTypeExpression(VariableReference varReference) {
+		'''«varReference.^var.name»'''
+	}
+
+	def dispatch processNoTypeExpression(FunctionCall funcCall) {
+		'''«funcCall.function.name»(«FOR arg : funcCall.args» «processExpression(arg)»«IF !arg.equals(funcCall.args.last)», «ENDIF»«ENDFOR»)'''
+	}
+
+	// INT EXPRESSIONS
+	def dispatch processIntExpression(IntLiteral intLiteral) {
+		'''«intLiteral.value»'''
+	}
+
+	def dispatch processIntExpression(MathExpression mathExpression) {
+		'''2+2'''
 	}
 
 }

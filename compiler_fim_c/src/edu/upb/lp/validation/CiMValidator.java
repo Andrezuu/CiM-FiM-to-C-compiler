@@ -30,12 +30,12 @@ public class CiMValidator extends AbstractCiMValidator {
 //		}
 //	}
 
-//	@Check
-//	public void isFunctionOpenEqualClose(Function f) {
-//		if (!(f.getName().equals(f.getNameClose()))) {
-//			error("Closing name should be the same as header", CiMPackage.Literals.FUNCTION__NAME_CLOSE);
-//		}
-//	}
+	@Check
+	public void isFunctionOpenEqualClose(Function f) {
+		if (!(f.getName().equals(f.getNameClose()))) {
+			error("Closing name should be the same as header", CiMPackage.Literals.FUNCTION__NAME_CLOSE);
+		}
+	}
 
 //	@Check
 //	public void checkType(Variable v) {

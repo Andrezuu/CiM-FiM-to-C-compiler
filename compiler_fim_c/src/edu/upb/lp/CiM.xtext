@@ -10,9 +10,9 @@ Program:
 	"Your faithful student," coderName=ID ".";
 
 Function:
-	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' (('with' | 'to get')
+	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' ('with'
 	returnType=Type)? "{"
-	(vars+=Variable | statements+=Statement)*
+	(vars+=Variable | statements+=Statement)*//| funcCalls+=FunctionCall)*
 	("Then you get" returnValue=Expression)?
 	"That's all about" nameClose=ID "}";
 
@@ -25,40 +25,45 @@ Parameter:
 Type:
 	"Bool" | "Int" | "String" | "Int[]" | "Bool[]";
 
+Expression:
+	NoTypeExpression | IntExpression | BooleanExpression | StringLiteral | IntArrayLiteral | BooleanArrayLiteral;
+
+Statement:
+	Print | Input | IfStatement | ForStatement | // ForEachStatement | WhileStatement | DoWhileStatement |
+	VariableAssignment;
+
 ////
-Literal:
-	BooleanLiteral | IntLiteral | StringLiteral; // | IntArrayLiteral | BooleanArrayLiteral;
+//Literal:
+//	BooleanLiteral | IntLiteral | StringLiteral | IntArrayLiteral | BooleanArrayLiteral;
 
 IntLiteral:
-	{IntLiteral} value=INT // HACER COMO BOOLEAN LITERAL INVESTIGAR UNASSIGNED RULE CALL
-;
+	{IntLiteral} value=INT;
 
 StringLiteral:
-	{StringLiteral} value=STRING // HACER COMO BOOLEAN LITERAL
-;
+	{StringLiteral} value=STRING;
 
 BooleanLiteral:
-	{BooleanLiteral} value="2"("true" | "false");
+	{BooleanLiteral} value?=(TrueLiteral | FalseLiteral);
 
-//TrueLiteral:
-//    {TrueLiteral} (value?=('yes' | 'true' | 'right' | 'correct'));
-//
-//FalseLiteral:
-//    {FalseLiteral} (value?=('no' | 'false' | 'incorrect' | 'wrong'));
-//IntArrayLiteral:
-//	'[' values+=INT (',' values+=INT)* ']';
-//
-//BooleanArrayLiteral:
-//	'[' values+=BooleanLiteral (',' values+=BooleanLiteral)* ']';
+TrueLiteral:
+	{TrueLiteral} (value?=('yes' | 'true' | 'right' | 'correct'));
+
+FalseLiteral:
+	{FalseLiteral} (value?=('no' | 'false' | 'incorrect' | 'wrong'));
+
+IntArrayLiteral:
+	'[' values+=INT (',' values+=INT)* ']';
+
+BooleanArrayLiteral:
+	'[' values+=BooleanLiteral (',' values+=BooleanLiteral)* ']';
+
 Variable:
-	"Did you know that" name=ID
-	("is" | "was" | "has" | "had" | "like" | "likes" | "liked") type=Type (value=Expression)? ";";
+	("Did you know that")? name=ID
+	(("is" | "was" | "has" | "had" | "like" | "likes" | "liked"))? type=Type (value=Expression)? ";";
 
-Expression:
-	Literal | NoTypeExpression | MathExpression;// | BooleanExpression;
 
 VariableReference:
-	var=[Variable];
+	var=[Variable];// | var=[Parameter] preguntar;
 
 IntExpression:
 	IntLiteral | MathExpression;
@@ -67,10 +72,10 @@ NoTypeExpression:
 	VariableReference | FunctionCall;
 
 MathExpression:
-	Increment | Decrement | Sum | Substraction | Multiplication | Division; // | Suma | Resta | Multiplicacion | Division;
+	Increment | Decrement | Sum | Substraction | Multiplication | Division; 
 
 BooleanExpression:
-	BooleanLiteral; // | Comparison;
+	BooleanLiteral;//| Comparison;
 
 Comment:
 	("P.")+ "S." comment=STRING;
@@ -83,7 +88,7 @@ Decrement:
 	var=[Variable] "got one less";
 
 Sum:
-	("add" val1=IntLiteral "and" val2=IntLiteral);
+	("add" val1=IntExpression "and" val2=IntExpression);
 
 Substraction:
 	("substract" | "the difference between") val1=IntLiteral "and" val2=IntLiteral;
@@ -94,9 +99,7 @@ Multiplication:
 Division:
 	("divide" val1=IntLiteral ("and" | "by") val2=IntLiteral);
 
-Statement:
-	Print | Input | IfStatement | // ForStatement | ForEachStatement | WhileStatement | DoWhileStatement |
-	VariableAssignment;
+
 
 VariableAssignment:
 	VariableReference ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
@@ -115,62 +118,59 @@ Comparador:
 	"is" | "was" | "has" | "had";
 
 Equal:
-	Comparador val1=BooleanLiteral "equal to" val2=BooleanLiteral;
+	Comparador "equal to" val1=Expression val2=Expression;
 
 NotEqual:
-	Comparador val1=BooleanLiteral "not equal to" val2=BooleanLiteral;
+	Comparador "not equal to" val1=Expression val2=Expression;
 
 LessThan:
-	Comparador val1=BooleanLiteral "less than" val2=BooleanLiteral;
+	Comparador "less than" val1=Expression val2=Expression;
 
 LessThanOrEqual:
-	Comparador val1=BooleanLiteral "less or equal to" val2=BooleanLiteral;
+	Comparador "less or equal to" val1=Expression val2=Expression;
 
 MoreThan:
-	Comparador val1=BooleanLiteral ("more" | "greater") "than" val2=BooleanLiteral;
+	Comparador ("more" | "greater") "than" val1=Expression  val2=Expression;
 
 MoreThanOrEqual:
-	Comparador val1=BooleanLiteral "more or equal to" val2=BooleanLiteral;
+	Comparador "more or equal to" val1=Expression val2=Expression;
 
 //INSTRUCCIONES DE CONTROL DE FLUJO
 //Conditional
 IfStatement:
 	("If" | "When") condition=BooleanExpression "then" "{"
-	(vars+=Variable | statements+=Statement)*
+	(vars+=Variable | statements+=Statement)* //| funcCalls+=FunctionCall)*
 	("That's what I would do" | else=ElseStatement) "}";
 
 ElseStatement:
 	("Otherwise" | "Or else") "{"
-	vars+=Variable*
+	(vars+=Variable | statements+=Statement)*//| funcCalls+=FunctionCall)*
 //	assigns+=VariableAssignment*
 //	expr+=Expression*
 	"That's what I would do" "}";
 
 WhileStatement:
 	("Here's what I did" | "As long as") condition=BooleanExpression "{"
-	vars+=Variable*
+	(vars+=Variable | statements+=Statement)*//| funcCalls+=FunctionCall)*
 //	assigns+=VariableAssignment*
 //	expr+=Expression*
 	"That's what I did" "}";
 
 DoWhileStatement:
 	"Here's what I did" "{"
-	vars+=Variable*
+	(vars+=Variable | statements+=Statement)*//| funcCalls+=FunctionCall)*
 //	assigns+=VariableAssignment*
-//	expr+=Expression*
 	"}" "I did this" ("while" | "as long as") condition=BooleanExpression;
 
 ForStatement:
-	"For every" val1=Variable "from" var=VariableReference "to" val2=IntLiteral "{"
-	vars+=Variable*
-//	assigns+=VariableAssignment*
-//	expr+=Expression*
+	"For every" var=Variable "from" val1=(IntLiteral | VariableReference) "to"   val2=IntLiteral "{" 
+	(vars+=Variable | statements+=Statement)*// | funcCalls+=FunctionCall)*
 	"That's what I did" "}";
 
-ForEachStatement:
-	"For every" var=Variable "in" arrayValue=Literal "{"
-	vars+=Variable*
-//	assigns+=VariableAssignment*
-//	expr+=Expression*
-	"That's what I did"
-	"}";
+//ForEachStatement:
+//	"For every" var=Variable "in" arrayValue=Literal "{"
+//	vars+=Variable*
+////	assigns+=VariableAssignment*
+////	expr+=Expression*
+//	"That's what I did"
+//	"}";
