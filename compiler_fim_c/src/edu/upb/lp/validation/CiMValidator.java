@@ -7,9 +7,12 @@ import java.util.Set;
 
 import org.eclipse.xtext.validation.Check;
 
+import edu.upb.lp.ciM.BooleanLiteral;
 import edu.upb.lp.ciM.CiMPackage;
+import edu.upb.lp.ciM.Expression;
 import edu.upb.lp.ciM.Function;
 import edu.upb.lp.ciM.Variable;
+import edu.upb.lp.ciM.VariableReference;
 
 /**
  * This class contains custom validation rules.
@@ -30,12 +33,12 @@ public class CiMValidator extends AbstractCiMValidator {
 //		}
 //	}
 
-	@Check
-	public void isFunctionOpenEqualClose(Function f) {
-		if (!(f.getName().equals(f.getNameClose()))) {
-			error("Closing name should be the same as header", CiMPackage.Literals.FUNCTION__NAME_CLOSE);
-		}
-	}
+////	@Check
+////	public void isFunctionOpenEqualClose(Function f) {
+////		if (!(f.getName().equals(f.getNameClose()))) {
+////			error("Closing name should be the same as header", CiMPackage.Literals.FUNCTION__NAME_CLOSE);
+////		}
+////	}
 
 //	@Check
 //	public void checkType(Variable v) {
@@ -57,4 +60,48 @@ public class CiMValidator extends AbstractCiMValidator {
 //		}
 //	}
 
+	public static final String INVALID_NAME = "invalidName";
+    public static final String TYPE_MISMATCH = "typeMismatch";
+    public static final String UNDECLARED_VARIABLE = "undeclaredVariable";
+    public static final String INVALID_BOOLEAN_LITERAL = "invalidBooleanLiteral";
+
+    @Check
+    public void isFunctionOpenEqualClose(Function f) {
+        if (!(f.getName().equals(f.getNameClose()))) {
+            error("No es igual al nombre de la Funcion WEY!!!", CiMPackage.Literals.FUNCTION__NAME_CLOSE);
+        }
+    }
+
+    @Check
+    public void checkVariableType(Variable v) {
+        Expression value = v.getValue();
+        String type = v.getType();
+        if (value == null) {
+            return;
+        }
+
+        if (type.equals("Int")) {
+            if (!(value instanceof edu.upb.lp.ciM.IntLiteral)) {
+                error("y el Int??", CiMPackage.Literals.VARIABLE__VALUE);
+            }
+        } else if (type.equals("Bool")) {
+            if (!(value instanceof edu.upb.lp.ciM.BooleanLiteral)) {
+                error("Y el boolean??", CiMPackage.Literals.VARIABLE__VALUE);
+            }
+        } else if (type.equals("String")) {
+            if (!(value instanceof edu.upb.lp.ciM.StringLiteral)) {
+                error("Y el String??", CiMPackage.Literals.VARIABLE__VALUE);
+            }
+        }
+    }
+
+    @Check
+    public void checkVariableReference(VariableReference ref) {
+        if (ref.getVar() == null) {
+            error("Y la referencia??", CiMPackage.Literals.VARIABLE_REFERENCE__VAR);
+        }
+    }
+
+	
+	
 }
