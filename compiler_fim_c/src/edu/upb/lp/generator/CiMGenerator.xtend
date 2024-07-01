@@ -19,9 +19,9 @@ import edu.upb.lp.ciM.IntLiteral
 import edu.upb.lp.ciM.MathExpression
 import edu.upb.lp.ciM.NoTypeExpression
 import edu.upb.lp.ciM.NotEqual
-import edu.upb.lp.ciM.Parameter
 import edu.upb.lp.ciM.Print
 import edu.upb.lp.ciM.Program
+import edu.upb.lp.ciM.Statement
 import edu.upb.lp.ciM.StringLiteral
 import edu.upb.lp.ciM.TrueLiteral
 import edu.upb.lp.ciM.Variable
@@ -54,19 +54,39 @@ class CiMGenerator extends AbstractGenerator {
 			#include <iostream>
 			#include <cmath>
 			using namespace std;
-			«FOR atribute : p.attributes» «processVariable(atribute)» «ENDFOR»
-			«FOR function : p.func» «processFunction(function)» «ENDFOR» 
+			«FOR declaration : p.declarations»«processDeclaration(declaration)»«ENDFOR»
 			«processMainFunction(p.main)»
 			
 		'''
+	}
+	
+	def dispatch processDeclaration(Variable variable) {
+		processVariable(variable)
+	}
+	
+	def dispatch processDeclaration(Function function) {
+		processFunction(function)
+	}
+	
+	
+
+	def dispatch processInstruction(Variable variable) {
+		processVariable(variable)
+	}
+
+	def dispatch processInstruction(Statement statement) {
+		processStatement(statement)
+	}
+	
+	def dispatch processInstruction(FunctionCall functionCall) {
+		processFunctionCall(functionCall)
 	}
 
 	def processMainFunction(Function mainFunction) {
 		'''
 			int main() {
-				«FOR variable : mainFunction.vars» «processVariable(variable)» «ENDFOR»
-				«FOR statement : mainFunction.statements»«processStatement(statement)»«ENDFOR»
-				return 0;
+			«FOR inst : mainFunction.instructions»«processInstruction(inst)»«ENDFOR»
+			return 0;
 			}
 		'''
 	}
@@ -74,10 +94,13 @@ class CiMGenerator extends AbstractGenerator {
 	def processFunction(Function function) {
 		'''
 			«IF function.returnType !==null» «function.returnType.toLowerCase» «ELSE» void «ENDIF» «function.name» ( «IF !(function.params.isNullOrEmpty)» «processParameters(function.params)» «ENDIF» ) {
-				«FOR variable : function.vars» «processVariable(variable)» «ENDFOR»
-				«FOR statement : function.statements»«processStatement(statement)»«ENDFOR»
+			«FOR inst : function.instructions»«processInstruction(inst)»«ENDFOR»
 			}
 		'''
+	}
+	
+	def processFunctionCall(FunctionCall funcCall) {
+		'''«funcCall.function.name»(«FOR arg : funcCall.args» «processExpression(arg)»«IF !arg.equals(funcCall.args.last)», «ENDIF»«ENDFOR»);'''
 	}
 
 	def processVariable(Variable variable) {
@@ -94,16 +117,13 @@ class CiMGenerator extends AbstractGenerator {
 
 	def dispatch processStatement(IfStatement ifStatement) '''
 		if ( «processExpression(ifStatement.condition)» ) {
-		    «FOR variable : ifStatement.vars»«processVariable(variable)»«ENDFOR»
-		    «FOR statement : ifStatement.statements»«processStatement(statement)»«ENDFOR»
-		} «IF ifStatement.^else !== null»«processStatement(ifStatement.^else as ElseStatement)»«ENDIF»
+		«FOR inst : ifStatement.instructions»«processInstruction(inst)»«ENDFOR»		} «IF ifStatement.^else !== null»«processStatement(ifStatement.^else as ElseStatement)»«ENDIF»
 	'''
 
 	def dispatch processStatement(ElseStatement elseStatement) {
 		'''
 			else {
-				«FOR variable : elseStatement.vars»«processVariable(variable)»«ENDFOR»
-				«FOR statement : elseStatement.statements»«processStatement(statement)»«ENDFOR»
+				«FOR inst: elseStatement.instructions»«processInstruction(inst)»«ENDFOR»
 			}
 		'''
 	}
@@ -123,12 +143,11 @@ class CiMGenerator extends AbstractGenerator {
 
 	def dispatch processStatement(ForStatement forStatement) '''
 		for(«processForVariable(forStatement.^var)» = max(«processExpression(forStatement.val1)»,«processExpression(forStatement.val2)»); «forStatement.^var.name» > abs(«processExpression(forStatement.val1)»-«processExpression(forStatement.val2)»); «forStatement.^var.name»--)  {
-			«FOR variable : forStatement.vars»«processVariable(variable)»«ENDFOR»
-			«FOR statement : forStatement.statements»«processStatement(statement)»«ENDFOR»
+			«FOR inst: forStatement.instructions»«processInstruction(inst)»«ENDFOR»
 		}
 	'''
 
-	def processParameters(EList<Parameter> params) {
+	def processParameters(EList<Variable> params) {
 		'''
 			«FOR param : params»«param.type.toLowerCase» «param.name»«IF !param.equals(params.last)», «ENDIF»«ENDFOR»
 		'''
@@ -141,27 +160,29 @@ class CiMGenerator extends AbstractGenerator {
 	def dispatch processExpression(StringLiteral stringLiteral) {
 		'''«stringLiteral.value»'''
 	}
-
-	// BOOLEAN EXPRESSIONS
+	
 	def dispatch processExpression(BooleanExpression booleanExpression) {
 		processBooleanExpression(booleanExpression)
 	}
 
+	// BOOLEAN EXPRESSIONS
+	
 	def dispatch processBooleanExpression(BooleanLiteral booleanLiteral) {
 		processBooleanLiteral(booleanLiteral)
+		
 	}
-
+	
 	def dispatch processBooleanExpression(Comparison comparison) {
 		processComparison(comparison)
 	}
 
 	// BOOLEAN LITERALS
 	def dispatch processBooleanLiteral(TrueLiteral trueLiteral) {
-		'''true'''
+		'''«trueLiteral.value»'''
 	}
 
 	def dispatch processBooleanLiteral(FalseLiteral falseLiteral) {
-		'''false'''
+		'''«falseLiteral.value»'''
 	}
 
 	// COMPARISONS
@@ -183,7 +204,7 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def dispatch processNoTypeExpression(FunctionCall funcCall) {
-		'''«funcCall.function.name»(«FOR arg : funcCall.args» «processExpression(arg)»«IF !arg.equals(funcCall.args.last)», «ENDIF»«ENDFOR»)'''
+		processFunctionCall(funcCall)
 	}
 
 	// INT EXPRESSIONS
