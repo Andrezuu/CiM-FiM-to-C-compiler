@@ -69,7 +69,7 @@ VariableReference:
 	var=[Variable]; // | var=[Parameter] preguntar;
 
 IntExpression:
-	IntLiteral | MathExpression;
+	IntLiteral | MathExpression | ref=[Variable];
 
 NoTypeExpression:
 	VariableReference | FunctionCall;

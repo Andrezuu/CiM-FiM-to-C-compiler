@@ -29,6 +29,7 @@ import edu.upb.lp.ciM.NoTypeExpression
 import edu.upb.lp.ciM.NotEqual
 import edu.upb.lp.ciM.Print
 import edu.upb.lp.ciM.Program
+import edu.upb.lp.ciM.Return
 import edu.upb.lp.ciM.Statement
 import edu.upb.lp.ciM.StringLiteral
 import edu.upb.lp.ciM.Substraction
@@ -88,6 +89,10 @@ class CiMGenerator extends AbstractGenerator {
 
 	def dispatch processInstruction(FunctionCall functionCall) {
 		processFunctionCall(functionCall)
+	}
+	
+	def dispatch processInstruction(Return returnVal) {
+		'''return «processExpression(returnVal.^val)»;'''
 	}
 
 	def processMainFunction(Function mainFunction) {
