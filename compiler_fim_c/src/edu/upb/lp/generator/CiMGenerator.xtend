@@ -8,6 +8,7 @@ import edu.upb.lp.ciM.BooleanLiteral
 import edu.upb.lp.ciM.Comparison
 import edu.upb.lp.ciM.Decrement
 import edu.upb.lp.ciM.Division
+import edu.upb.lp.ciM.DoWhileStatement
 import edu.upb.lp.ciM.ElseStatement
 import edu.upb.lp.ciM.Equal
 import edu.upb.lp.ciM.FalseLiteral
@@ -37,6 +38,7 @@ import edu.upb.lp.ciM.Sum
 import edu.upb.lp.ciM.TrueLiteral
 import edu.upb.lp.ciM.Variable
 import edu.upb.lp.ciM.VariableReference
+import edu.upb.lp.ciM.WhileStatement
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
@@ -90,9 +92,17 @@ class CiMGenerator extends AbstractGenerator {
 	def dispatch processInstruction(FunctionCall functionCall) {
 		processFunctionCall(functionCall)
 	}
-	
+
 	def dispatch processInstruction(Return returnVal) {
 		'''return «processExpression(returnVal.^val)»;'''
+	}
+	
+	def dispatch processInstruction(Increment increment) {
+		'''«increment.^var.name»++;'''
+	}
+	
+	def dispatch processInstruction(Decrement decrement) {
+		'''«decrement.^var.name»--;'''
 	}
 
 	def processMainFunction(Function mainFunction) {
@@ -113,7 +123,7 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def processFunctionCall(FunctionCall funcCall) {
-		'''«funcCall.function.name»(«FOR arg : funcCall.args» «processExpression(arg)»«IF !arg.equals(funcCall.args.last)», «ENDIF»«ENDFOR»);'''
+		'''«funcCall.function.name»(«FOR arg : funcCall.args» «processExpression(arg)»«IF !arg.equals(funcCall.args.last)», «ENDIF»«ENDFOR»)'''
 	}
 
 	def processVariable(Variable variable) {
@@ -159,6 +169,22 @@ class CiMGenerator extends AbstractGenerator {
 			«FOR inst : forStatement.instructions»«processInstruction(inst)»«ENDFOR»
 		}
 	'''
+
+	def dispatch processStatement(WhileStatement whileStatement) {
+		'''
+			while(«processExpression(whileStatement.condition)») {
+						«FOR inst : whileStatement.instructions»«processInstruction(inst)»«ENDFOR»
+				}
+		'''
+	}
+	
+	def dispatch processStatement(DoWhileStatement doWhileStatement) {
+		'''
+		do {
+			«FOR inst : doWhileStatement.instructions»«processInstruction(inst)»«ENDFOR»
+		} while(«processExpression(doWhileStatement.condition)») 
+		'''
+	}
 
 	def processParameters(EList<Variable> params) {
 		'''
@@ -236,14 +262,14 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	// math
-	def dispatch processMathExpression(Increment increment) {
-		'''«increment.^var.name»++;'''
-	}
-
-	def dispatch processMathExpression(Decrement decrement) {
-		'''«decrement.^var.name»--;'''
-	}
-
+//	def dispatch processMathExpression(Increment increment) {
+//		'''« increment.^var.name»++;''' 
+//	}
+//
+//	def dispatch processMathExpression(Decrement decrement) {
+//		'''«decrement.^var.name»--;'''
+//	}
+ 
 	def dispatch processMathExpression(Sum sum) {
 		'''«processExpression(sum.val1)» + «processExpression(sum.val2)»'''
 	}

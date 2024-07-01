@@ -16,16 +16,16 @@ Function:
 	"That's all about" nameClose=ID "}";
 
 Instruction:
-	Variable | Statement | FunctionCall | Return;
+	Variable | Statement | FunctionCall | Return | Increment | Decrement;
 
 Return:
-	"Then you get" val=Expression ";";
+	"Then you get" val=Expression;
 
 Declaration:
 	Variable | Function;
 
 FunctionCall:
-	("I would" | "I remembered")? function=[Function] 'using' '(' (args+=Expression (',' args+=Expression)*)? ')' ';';
+	("I would" | "I remembered")? function=[Function] 'using' '(' (args+=Expression (',' args+=Expression)*)? ')' ;
 
 Parameter returns Variable:
 	name=ID ":" type=Type;
@@ -37,7 +37,7 @@ Expression:
 	NoTypeExpression | IntExpression | BooleanExpression | StringLiteral | IntArrayLiteral | BooleanArrayLiteral;
 
 Statement:
-	Print | Input | IfStatement | ForStatement | // ForEachStatement | WhileStatement | DoWhileStatement |
+	Print | Input | IfStatement | ForStatement | WhileStatement | DoWhileStatement |
 	VariableAssignment;
 
 IntLiteral:
@@ -66,7 +66,7 @@ Variable:
 	(("is" | "was" | "has" | "had" | "like" | "likes" | "liked"))? type=Type (value=Expression)? ";";
 
 VariableReference:
-	var=[Variable]; // | var=[Parameter] preguntar;
+	var=[Variable];
 
 IntExpression:
 	IntLiteral | MathExpression | ref=[Variable];
@@ -75,20 +75,20 @@ NoTypeExpression:
 	VariableReference | FunctionCall;
 
 MathExpression:
-	Increment | Decrement | Sum | Substraction | Multiplication | Division;
+	Sum | Substraction | Multiplication | Division;//Increment | Decrement | 
 
 BooleanExpression:
-	BooleanLiteral | Comparison; // | Comparison;
+	BooleanLiteral | Comparison;
 
 Comment:
 	("P.")+ "S." comment=STRING;
 
 // OPERADORES
 Increment:
-	var=[Variable] "got one more";
+	"gotOneMore" var=[Variable];
 
 Decrement:
-	var=[Variable] "got one less";
+	"gotOneLess" var=[Variable];
 
 Sum:
 	("add" val1=Expression "and" val2=Expression);
@@ -106,10 +106,10 @@ VariableAssignment returns Variable:
 	VariableReference ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
 
 Print:
-	"I " ("said" | "wrote" | "sang" | "thought") value=Expression ";";
+	"I " ("said" | "wrote" | "sang" | "thought") value=Expression ;
 
 Input:
-	"I " ("heard" | "read" | "asked") var=[Variable] (prompt=STRING)? ";";
+	"I " ("heard" | "read" | "asked") var=[Variable] (prompt=STRING)? ;
 
 //COMPRACIONES
 Comparison:
@@ -139,7 +139,7 @@ MoreThanOrEqual:
 //INSTRUCCIONES DE CONTROL DE FLUJO
 //Conditional
 IfStatement:
-	("If" | "When") condition=BooleanExpression "then"
+	("If" | "When") condition=Expression "then"
 	instructions+=Instruction*
 	("That's what I would do" | else=ElseStatement);
 
@@ -149,19 +149,20 @@ ElseStatement:
 	"That's what I would do";
 
 WhileStatement:
-	("Here's what I did" | "As long as") condition=BooleanExpression
+	"As long as" "("condition=Expression")"
 	instructions+=Instruction*
 	"That's what I did";
 
 DoWhileStatement:
 	"Here's what I did"
 	instructions+=Instruction*
-	"I did this" ("while" | "as long as") condition=BooleanExpression;
+	"I did this" ("while" | "as long as") "("condition=Expression")";
 
 ForStatement:
-	"For every" var=Variable "from" val1=(IntLiteral | VariableReference) "to" val2=IntLiteral
+	"For every" var=Variable "from" val1=Expression"to" val2=Expression
 	instructions+=Instruction*
 	"That's what I did";
+
 //ForEachStatement:
 //	"For every" var=Variable "in" arrayValue=Literal "{"
 //	vars+=Variable*
