@@ -96,11 +96,11 @@ class CiMGenerator extends AbstractGenerator {
 	def dispatch processInstruction(Return returnVal) {
 		'''return «processExpression(returnVal.^val)»;'''
 	}
-	
+
 	def dispatch processInstruction(Increment increment) {
 		'''«increment.^var.name»++;'''
 	}
-	
+
 	def dispatch processInstruction(Decrement decrement) {
 		'''«decrement.^var.name»--;'''
 	}
@@ -134,7 +134,7 @@ class CiMGenerator extends AbstractGenerator {
 
 	def processForVariable(Variable variable) {
 		'''
-			«variable.type.toLowerCase» «variable.name»	
+			«variable.type.toLowerCase» «variable.name»
 		'''
 	}
 
@@ -165,9 +165,20 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def dispatch processStatement(ForStatement forStatement) '''
-		for(«processForVariable(forStatement.^var)» = max(«processExpression(forStatement.val1)»,«processExpression(forStatement.val2)»); «forStatement.^var.name» > abs(«processExpression(forStatement.val1)»-«processExpression(forStatement.val2)»); «forStatement.^var.name»--)  {
-			«FOR inst : forStatement.instructions»«processInstruction(inst)»«ENDFOR»
-		}
+		
+		    auto start = «processExpression(forStatement.^var.value)»;
+		    auto end = «processExpression(forStatement.val2)»;
+		    
+		    if (start <= end) {
+		        for («processForVariable(forStatement.^var)» = start; «forStatement.^var.name» <= end; «forStatement.^var.name»++) {
+		            «FOR inst : forStatement.instructions»«processInstruction(inst)»«ENDFOR»
+		        }
+		    } else {
+		        for («processForVariable(forStatement.^var)» = start; «forStatement.^var.name» >= end; «forStatement.^var.name»--) {
+		            «FOR inst : forStatement.instructions»«processInstruction(inst)»«ENDFOR»
+		        }
+		    }
+		
 	'''
 
 	def dispatch processStatement(WhileStatement whileStatement) {
@@ -177,12 +188,12 @@ class CiMGenerator extends AbstractGenerator {
 				}
 		'''
 	}
-	
+
 	def dispatch processStatement(DoWhileStatement doWhileStatement) {
 		'''
-		do {
-			«FOR inst : doWhileStatement.instructions»«processInstruction(inst)»«ENDFOR»
-		} while(«processExpression(doWhileStatement.condition)») 
+			do {
+				«FOR inst : doWhileStatement.instructions»«processInstruction(inst)»«ENDFOR»
+			} while(«processExpression(doWhileStatement.condition)») 
 		'''
 	}
 
@@ -269,7 +280,6 @@ class CiMGenerator extends AbstractGenerator {
 //	def dispatch processMathExpression(Decrement decrement) {
 //		'''«decrement.^var.name»--;'''
 //	}
- 
 	def dispatch processMathExpression(Sum sum) {
 		'''«processExpression(sum.val1)» + «processExpression(sum.val2)»'''
 	}
