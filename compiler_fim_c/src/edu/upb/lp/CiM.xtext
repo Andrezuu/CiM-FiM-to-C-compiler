@@ -13,11 +13,13 @@ Function:
 	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' ('with'
 	returnType=Type)? "{"
 	instructions+=Instruction*
-	("Then you get" returnValue=Expression)?
 	"That's all about" nameClose=ID "}";
 
 Instruction:
-	Variable | Statement | FunctionCall;
+	Variable | Statement | FunctionCall | Return;
+
+Return:
+	"Then you get" val=Expression ";";
 
 Declaration:
 	Variable | Function;
@@ -89,18 +91,18 @@ Decrement:
 	var=[Variable] "got one less";
 
 Sum:
-	("add" val1=IntExpression "and" val2=IntExpression);
+	("add" val1=Expression "and" val2=Expression);
 
 Substraction:
-	("substract" | "the difference between") val1=IntLiteral "and" val2=IntLiteral;
+	("substract" | "the difference between") val1=Expression "and" val2=Expression;
 
 Multiplication:
-	("multiply" val1=IntLiteral "and" val2=IntLiteral);
+	("multiply" val1=Expression "and" val2=Expression);
 
 Division:
-	("divide" val1=IntLiteral ("and" | "by") val2=IntLiteral);
+	("divide" val1=Expression ("and" | "by") val2=Expression);
 
-VariableAssignment:
+VariableAssignment returns Variable:
 	VariableReference ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
 
 Print:
@@ -137,29 +139,29 @@ MoreThanOrEqual:
 //INSTRUCCIONES DE CONTROL DE FLUJO
 //Conditional
 IfStatement:
-	("If" | "When") condition=BooleanExpression "then" "{"
+	("If" | "When") condition=BooleanExpression "then"
 	instructions+=Instruction*
-	("That's what I would do" | else=ElseStatement) "}";
+	("That's what I would do" | else=ElseStatement);
 
 ElseStatement:
-	("Otherwise" | "Or else") "{"
+	("Otherwise" | "Or else")
 	instructions+=Instruction*
-	"That's what I would do" "}";
+	"That's what I would do";
 
 WhileStatement:
-	("Here's what I did" | "As long as") condition=BooleanExpression "{"
+	("Here's what I did" | "As long as") condition=BooleanExpression
 	instructions+=Instruction*
-	"That's what I did" "}";
+	"That's what I did";
 
 DoWhileStatement:
-	"Here's what I did" "{"
+	"Here's what I did"
 	instructions+=Instruction*
-	"}" "I did this" ("while" | "as long as") condition=BooleanExpression;
+	"I did this" ("while" | "as long as") condition=BooleanExpression;
 
 ForStatement:
-	"For every" var=Variable "from" val1=(IntLiteral | VariableReference) "to" val2=IntLiteral "{"
+	"For every" var=Variable "from" val1=(IntLiteral | VariableReference) "to" val2=IntLiteral
 	instructions+=Instruction*
-	"That's what I did" "}";
+	"That's what I did";
 //ForEachStatement:
 //	"For every" var=Variable "in" arrayValue=Literal "{"
 //	vars+=Variable*

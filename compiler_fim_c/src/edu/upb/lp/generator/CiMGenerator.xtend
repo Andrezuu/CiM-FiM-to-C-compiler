@@ -6,6 +6,8 @@ package edu.upb.lp.generator
 import edu.upb.lp.ciM.BooleanExpression
 import edu.upb.lp.ciM.BooleanLiteral
 import edu.upb.lp.ciM.Comparison
+import edu.upb.lp.ciM.Decrement
+import edu.upb.lp.ciM.Division
 import edu.upb.lp.ciM.ElseStatement
 import edu.upb.lp.ciM.Equal
 import edu.upb.lp.ciM.FalseLiteral
@@ -13,16 +15,24 @@ import edu.upb.lp.ciM.ForStatement
 import edu.upb.lp.ciM.Function
 import edu.upb.lp.ciM.FunctionCall
 import edu.upb.lp.ciM.IfStatement
+import edu.upb.lp.ciM.Increment
 import edu.upb.lp.ciM.Input
 import edu.upb.lp.ciM.IntExpression
 import edu.upb.lp.ciM.IntLiteral
+import edu.upb.lp.ciM.LessThan
+import edu.upb.lp.ciM.LessThanOrEqual
 import edu.upb.lp.ciM.MathExpression
+import edu.upb.lp.ciM.MoreThan
+import edu.upb.lp.ciM.MoreThanOrEqual
+import edu.upb.lp.ciM.Multiplication
 import edu.upb.lp.ciM.NoTypeExpression
 import edu.upb.lp.ciM.NotEqual
 import edu.upb.lp.ciM.Print
 import edu.upb.lp.ciM.Program
 import edu.upb.lp.ciM.Statement
 import edu.upb.lp.ciM.StringLiteral
+import edu.upb.lp.ciM.Substraction
+import edu.upb.lp.ciM.Sum
 import edu.upb.lp.ciM.TrueLiteral
 import edu.upb.lp.ciM.Variable
 import edu.upb.lp.ciM.VariableReference
@@ -59,16 +69,14 @@ class CiMGenerator extends AbstractGenerator {
 			
 		'''
 	}
-	
+
 	def dispatch processDeclaration(Variable variable) {
 		processVariable(variable)
 	}
-	
+
 	def dispatch processDeclaration(Function function) {
 		processFunction(function)
 	}
-	
-	
 
 	def dispatch processInstruction(Variable variable) {
 		processVariable(variable)
@@ -77,7 +85,7 @@ class CiMGenerator extends AbstractGenerator {
 	def dispatch processInstruction(Statement statement) {
 		processStatement(statement)
 	}
-	
+
 	def dispatch processInstruction(FunctionCall functionCall) {
 		processFunctionCall(functionCall)
 	}
@@ -98,7 +106,7 @@ class CiMGenerator extends AbstractGenerator {
 			}
 		'''
 	}
-	
+
 	def processFunctionCall(FunctionCall funcCall) {
 		'''«funcCall.function.name»(«FOR arg : funcCall.args» «processExpression(arg)»«IF !arg.equals(funcCall.args.last)», «ENDIF»«ENDFOR»);'''
 	}
@@ -117,20 +125,20 @@ class CiMGenerator extends AbstractGenerator {
 
 	def dispatch processStatement(IfStatement ifStatement) '''
 		if ( «processExpression(ifStatement.condition)» ) {
-		«FOR inst : ifStatement.instructions»«processInstruction(inst)»«ENDFOR»		} «IF ifStatement.^else !== null»«processStatement(ifStatement.^else as ElseStatement)»«ENDIF»
+		«FOR inst : ifStatement.instructions»«processInstruction(inst)»«ENDFOR»	} «IF ifStatement.^else !== null»«processStatement(ifStatement.^else as ElseStatement)»«ENDIF»
 	'''
 
 	def dispatch processStatement(ElseStatement elseStatement) {
 		'''
 			else {
-				«FOR inst: elseStatement.instructions»«processInstruction(inst)»«ENDFOR»
+				«FOR inst : elseStatement.instructions»«processInstruction(inst)»«ENDFOR»
 			}
 		'''
 	}
 
 	def dispatch processStatement(Print printStatement) {
 		'''
-			cout<<«processExpression(printStatement.value)»;
+			cout<<«processExpression(printStatement.value)»<<endl;
 		'''
 	}
 
@@ -143,7 +151,7 @@ class CiMGenerator extends AbstractGenerator {
 
 	def dispatch processStatement(ForStatement forStatement) '''
 		for(«processForVariable(forStatement.^var)» = max(«processExpression(forStatement.val1)»,«processExpression(forStatement.val2)»); «forStatement.^var.name» > abs(«processExpression(forStatement.val1)»-«processExpression(forStatement.val2)»); «forStatement.^var.name»--)  {
-			«FOR inst: forStatement.instructions»«processInstruction(inst)»«ENDFOR»
+			«FOR inst : forStatement.instructions»«processInstruction(inst)»«ENDFOR»
 		}
 	'''
 
@@ -158,20 +166,19 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def dispatch processExpression(StringLiteral stringLiteral) {
-		'''«stringLiteral.value»'''
+		''' "«stringLiteral.value»" '''
 	}
-	
+
 	def dispatch processExpression(BooleanExpression booleanExpression) {
 		processBooleanExpression(booleanExpression)
 	}
 
 	// BOOLEAN EXPRESSIONS
-	
 	def dispatch processBooleanExpression(BooleanLiteral booleanLiteral) {
 		processBooleanLiteral(booleanLiteral)
-		
+
 	}
-	
+
 	def dispatch processBooleanExpression(Comparison comparison) {
 		processComparison(comparison)
 	}
@@ -194,8 +201,58 @@ class CiMGenerator extends AbstractGenerator {
 		'''«processExpression(notEqual.val1)» != «processExpression(notEqual.val2)»'''
 	}
 
+	def dispatch processComparison(LessThan lessThan) {
+		'''«processExpression(lessThan.val1)» < «processExpression(lessThan.val2)»'''
+	}
+
+	def dispatch processComparison(LessThanOrEqual lessThanOrEqual) {
+		'''«processExpression(lessThanOrEqual.val1)» <= «processExpression(lessThanOrEqual.val2)»'''
+	}
+
+	def dispatch processComparison(MoreThan moreThan) {
+		'''«processExpression(moreThan.val1)» > «processExpression(moreThan.val2)»'''
+	}
+
+	def dispatch processComparison(MoreThanOrEqual moreThanOrEqual) {
+		'''«processExpression(moreThanOrEqual.val1)» >= «processExpression(moreThanOrEqual.val2)»'''
+	}
+
+	// INT EXPRESSIONS
 	def dispatch processExpression(IntExpression intExpression) {
 		processIntExpression(intExpression)
+	}
+
+	def dispatch processIntExpression(IntLiteral intLiteral) {
+		'''«intLiteral.value»'''
+	}
+
+	def dispatch processIntExpression(MathExpression mathExpression) {
+		processMathExpression(mathExpression)
+	}
+
+	// math
+	def dispatch processMathExpression(Increment increment) {
+		'''«increment.^var.name»++;'''
+	}
+
+	def dispatch processMathExpression(Decrement decrement) {
+		'''«decrement.^var.name»--;'''
+	}
+
+	def dispatch processMathExpression(Sum sum) {
+		'''«processExpression(sum.val1)» + «processExpression(sum.val2)»'''
+	}
+
+	def dispatch processMathExpression(Substraction substraction) {
+		'''«processExpression(substraction.val1)» - «processExpression(substraction.val2)»'''
+	}
+
+	def dispatch processMathExpression(Multiplication multiplication) {
+		'''«processExpression(multiplication.val1)» * «processExpression(multiplication.val2)»'''
+	}
+
+	def dispatch processMathExpression(Division division) {
+		'''«processExpression(division.val1)» / «processExpression(division.val2)»'''
 	}
 
 	// NO TYPE EXPRESSIONS
@@ -205,15 +262,6 @@ class CiMGenerator extends AbstractGenerator {
 
 	def dispatch processNoTypeExpression(FunctionCall funcCall) {
 		processFunctionCall(funcCall)
-	}
-
-	// INT EXPRESSIONS
-	def dispatch processIntExpression(IntLiteral intLiteral) {
-		'''«intLiteral.value»'''
-	}
-
-	def dispatch processIntExpression(MathExpression mathExpression) {
-		'''2+2'''
 	}
 
 }
