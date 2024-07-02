@@ -5,18 +5,24 @@ generate ciM "http://www.upb.edu/lp/CiM"
 Program:
 	"Dear Princess Celestia:" name=ID "{"
 	declarations+=Declaration*
-	"Today" main=Function
+	main=MainFunction
 	"}"
 	"Your faithful student," coderName=ID ".";
+
+MainFunction:
+	"Today I learned" name=ID "{"
+	(vars+=Variable | instructions+=Instruction)*
+	"Thats all about" nameClose=ID
+	"}";
 
 Function:
 	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' ('with'
 	returnType=Type)? "{"
-	instructions+=Instruction*
-	"That's all about" nameClose=ID "}";
+	(vars+=Variable | instructions+=Instruction)*
+	"Thats all about" nameClose=ID "}";
 
 Instruction:
-	Variable | Statement | FunctionCall | Return | Increment | Decrement;
+	Statement | FunctionCall | Return | Increment | Decrement;
 
 Return:
 	"Then you get" val=Expression;
@@ -62,8 +68,8 @@ BooleanArrayLiteral:
 	'[' values+=BooleanLiteral (',' values+=BooleanLiteral)* ']';
 
 Variable:
-	("Did you know that")? name=ID
-	(("is" | "was" | "has" | "had" | "like" | "likes" | "liked"))? type=Type (value=Expression)? ";";
+	("Did you know")? name=ID
+	(("is" | "was" | "has" | "had" | "like" | "likes" | "liked"))? type=Type (value=Expression)? ".";
 
 VariableReference:
 	var=[Variable];
@@ -78,7 +84,7 @@ MathExpression:
 	Sum | Substraction | Multiplication | Division; // Increment | Decrement | 
 
 BooleanExpression:
-	BooleanLiteral | Comparison;
+	BooleanLiteral | Comparison | VariableReference;
 
 Comment:
 	("P.")+ "S." comment=STRING;
@@ -102,8 +108,8 @@ Multiplication:
 Division:
 	"divide" "("? val1=Expression ("and" | "by") val2=Expression ")"?;
 
-VariableAssignment returns Variable:
-	ref=VariableReference ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
+VariableAssignment:
+	ref=[Variable] ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
 
 Print:
 	"I " ("said" | "wrote" | "sang" | "thought") value=Expression;
@@ -119,39 +125,39 @@ Comparador:
 	"is" | "was" | "has" | "had";
 
 Equal:
-	Comparador "equal to" val1=Expression val2=Expression;
+	"equal to" val1=Expression val2=Expression;
 
 NotEqual:
-	Comparador "not equal to" val1=Expression val2=Expression;
+	"not equal to" val1=Expression val2=Expression;
 
 LessThan:
-	Comparador "less than" val1=Expression val2=Expression;
+	"less than" val1=Expression val2=Expression;
 
 LessThanOrEqual:
-	Comparador "less or equal to" val1=Expression val2=Expression;
+	"less or equal to" val1=Expression val2=Expression;
 
 MoreThan:
-	Comparador ("more" | "greater") "than" val1=Expression val2=Expression;
+	("more" | "greater") "than" val1=Expression val2=Expression;
 
 MoreThanOrEqual:
-	Comparador "more or equal to" val1=Expression val2=Expression;
+	"more or equal to" val1=Expression val2=Expression;
 
 //INSTRUCCIONES DE CONTROL DE FLUJO
 //Conditional
 IfStatement:
 	("If" | "When") condition=Expression "then"
 	instructions+=Instruction*
-	("That's what I would do" | else=ElseStatement);
+	("Thats what I would do" | else=ElseStatement);
 
 ElseStatement:
 	("Otherwise" | "Or else")
 	instructions+=Instruction*
-	"That's what I would do";
+	"Thats what I would do";
 
 WhileStatement:
 	"As long as" "(" condition=Expression ")"
 	instructions+=Instruction*
-	"That's what I did";
+	"Thats what I did";
 
 DoWhileStatement:
 	"Here's what I did"
@@ -161,7 +167,7 @@ DoWhileStatement:
 ForStatement:
 	"For every" var=Variable "from" val1=Expression "to" val2=Expression
 	instructions+=Instruction*
-	"That's what I did";
+	"Thats what I did";
 //ForEachStatement:
 //	"For every" var=Variable "in" arrayValue=Literal "{"
 //	vars+=Variable*

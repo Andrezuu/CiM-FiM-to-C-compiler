@@ -22,6 +22,7 @@ import edu.upb.lp.ciM.IntExpression
 import edu.upb.lp.ciM.IntLiteral
 import edu.upb.lp.ciM.LessThan
 import edu.upb.lp.ciM.LessThanOrEqual
+import edu.upb.lp.ciM.MainFunction
 import edu.upb.lp.ciM.MathExpression
 import edu.upb.lp.ciM.MoreThan
 import edu.upb.lp.ciM.MoreThanOrEqual
@@ -37,6 +38,7 @@ import edu.upb.lp.ciM.Substraction
 import edu.upb.lp.ciM.Sum
 import edu.upb.lp.ciM.TrueLiteral
 import edu.upb.lp.ciM.Variable
+import edu.upb.lp.ciM.VariableAssignment
 import edu.upb.lp.ciM.VariableReference
 import edu.upb.lp.ciM.WhileStatement
 import org.eclipse.emf.common.util.EList
@@ -81,10 +83,6 @@ class CiMGenerator extends AbstractGenerator {
 		processFunction(function)
 	}
 
-	def dispatch processInstruction(Variable variable) {
-		'''«variable.ref.^var.name» = «processExpression(variable.value)»;'''
-	}
-
 	def dispatch processInstruction(Statement statement) {
 		processStatement(statement)
 	}
@@ -105,9 +103,10 @@ class CiMGenerator extends AbstractGenerator {
 		'''«decrement.^var.name»--;'''
 	}
 
-	def processMainFunction(Function mainFunction) {
+	def processMainFunction(MainFunction mainFunction) {
 		'''
 			int main() {
+			«FOR vari: mainFunction.vars»«processVariable(vari)»«ENDFOR»
 			«FOR inst : mainFunction.instructions»«processInstruction(inst)»«ENDFOR»
 			return 0;
 			}
@@ -142,9 +141,13 @@ class CiMGenerator extends AbstractGenerator {
 			«variable.type.toLowerCase» «variable.name»
 		'''
 	}
+	
+	def dispatch processStatement(VariableAssignment varAssign) {
+		'''«varAssign.ref.name» = «processExpression(varAssign.value)»;'''
+	}
 
 	def dispatch processStatement(IfStatement ifStatement) '''
-		if ( «processExpression(ifStatement.condition)» ) {
+		if ( «processBooleanExpression(ifStatement.condition)» ) {
 		«FOR inst : ifStatement.instructions»«processInstruction(inst)»«ENDFOR»	} «IF ifStatement.^else !== null»«processStatement(ifStatement.^else as ElseStatement)»«ENDIF»
 	'''
 
@@ -229,6 +232,10 @@ class CiMGenerator extends AbstractGenerator {
 	def dispatch processBooleanExpression(Comparison comparison) {
 		processComparison(comparison)
 	}
+	
+	def dispatch processBooleanExpression(Variable variable) {
+		processExpression(variable.value)
+	}
 
 	// BOOLEAN LITERALS
 	def dispatch processBooleanLiteral(TrueLiteral trueLiteral) {
@@ -271,6 +278,10 @@ class CiMGenerator extends AbstractGenerator {
 
 	def dispatch processIntExpression(IntLiteral intLiteral) {
 		'''«intLiteral.value»'''
+	}
+	
+	def dispatch processIntExpression(Variable variable) {
+		processExpression(variable.value)
 	}
 
 	def dispatch processIntExpression(MathExpression mathExpression) {
