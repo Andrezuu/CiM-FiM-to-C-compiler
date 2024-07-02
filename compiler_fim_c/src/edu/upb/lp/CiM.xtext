@@ -103,7 +103,7 @@ Division:
 	("divide" val1=Expression ("and" | "by") val2=Expression);
 
 VariableAssignment returns Variable:
-	VariableReference ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
+	ref=VariableReference ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
 
 Print:
 	"I " ("said" | "wrote" | "sang" | "thought") value=Expression ;

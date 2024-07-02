@@ -82,7 +82,7 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def dispatch processInstruction(Variable variable) {
-		processVariable(variable)
+		'''«variable.ref.^var.name» = «processExpression(variable.value)»;'''
 	}
 
 	def dispatch processInstruction(Statement statement) {
@@ -90,7 +90,7 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def dispatch processInstruction(FunctionCall functionCall) {
-		processFunctionCall(functionCall)
+		'''«processFunctionCall(functionCall)»;'''
 	}
 
 	def dispatch processInstruction(Return returnVal) {
