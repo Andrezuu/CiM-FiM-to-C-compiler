@@ -82,7 +82,7 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def dispatch processInstruction(Variable variable) {
-		processVariable(variable)
+		'''«variable.ref.^var.name» = «processExpression(variable.value)»;'''
 	}
 
 	def dispatch processInstruction(Statement statement) {
@@ -90,7 +90,7 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def dispatch processInstruction(FunctionCall functionCall) {
-		processFunctionCall(functionCall)
+		'''«processFunctionCall(functionCall, true)»'''
 	}
 
 	def dispatch processInstruction(Return returnVal) {
@@ -122,9 +122,14 @@ class CiMGenerator extends AbstractGenerator {
 		'''
 	}
 
-	def processFunctionCall(FunctionCall funcCall) {
-		'''«funcCall.function.name»(«FOR arg : funcCall.args» «processExpression(arg)»«IF !arg.equals(funcCall.args.last)», «ENDIF»«ENDFOR»)'''
+//	def processFunctionCall(FunctionCall funcCall, boolean isStatement) {
+//		'''«funcCall.function.name»(«FOR arg : funcCall.args» «processExpression(arg)»«IF !arg.equals(funcCall.args.last)», «ENDIF»«ENDFOR»)'''
+//	}
+
+	def processFunctionCall(FunctionCall funcCall, boolean isStatement) {
+    '''«funcCall.function.name»(«funcCall.args.map[processExpression(it)].join(', ')»)«IF isStatement»;«ENDIF»'''
 	}
+
 
 	def processVariable(Variable variable) {
 		'''
@@ -302,7 +307,7 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def dispatch processNoTypeExpression(FunctionCall funcCall) {
-		processFunctionCall(funcCall)
+		processFunctionCall(funcCall, false)
 	}
 
 }
