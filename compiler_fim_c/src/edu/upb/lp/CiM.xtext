@@ -25,7 +25,7 @@ Declaration:
 	Variable | Function;
 
 FunctionCall:
-	("I would" | "I remembered")? function=[Function] 'using' '(' (args+=Expression (',' args+=Expression)*)? ')' ;
+	("I would" | "I remembered")? function=[Function] 'using' '(' (args+=Expression (',' args+=Expression)*)? ')';
 
 Parameter returns Variable:
 	name=ID ":" type=Type;
@@ -75,7 +75,7 @@ NoTypeExpression:
 	VariableReference | FunctionCall;
 
 MathExpression:
-	Sum | Substraction | Multiplication | Division;//Increment | Decrement | 
+	Sum | Substraction | Multiplication | Division; // Increment | Decrement | 
 
 BooleanExpression:
 	BooleanLiteral | Comparison;
@@ -91,25 +91,25 @@ Decrement:
 	"gotOneLess" var=[Variable];
 
 Sum:
-	("add" val1=Expression "and" val2=Expression);
+	"add" "("? val1=Expression "and" val2=Expression ")"?;
 
 Substraction:
-	("substract" | "the difference between") val1=Expression "and" val2=Expression;
+	("substract" | "the difference between") "("? val1=Expression "and" val2=Expression ")"?;
 
 Multiplication:
-	("multiply" val1=Expression "and" val2=Expression);
+	"multiply" "("? val1=Expression "and" val2=Expression ")"?;
 
 Division:
-	("divide" val1=Expression ("and" | "by") val2=Expression);
+	"divide" "("? val1=Expression ("and" | "by") val2=Expression ")"?;
 
 VariableAssignment returns Variable:
 	ref=VariableReference ("is now" | "are now" | "now likes" | "now like" | "become" | "becomes") value=Expression;
 
 Print:
-	"I " ("said" | "wrote" | "sang" | "thought") value=Expression ;
+	"I " ("said" | "wrote" | "sang" | "thought") value=Expression;
 
 Input:
-	"I " ("heard" | "read" | "asked") var=[Variable] (prompt=STRING)? ;
+	"I " ("heard" | "read" | "asked") var=[Variable] (prompt=STRING)?;
 
 //COMPRACIONES
 Comparison:
@@ -149,20 +149,19 @@ ElseStatement:
 	"That's what I would do";
 
 WhileStatement:
-	"As long as" "("condition=Expression")"
+	"As long as" "(" condition=Expression ")"
 	instructions+=Instruction*
 	"That's what I did";
 
 DoWhileStatement:
 	"Here's what I did"
 	instructions+=Instruction*
-	"I did this" ("while" | "as long as") "("condition=Expression")";
+	"I did this" ("while" | "as long as") "(" condition=Expression ")";
 
 ForStatement:
-	"For every" var=Variable "from" val1=Expression"to" val2=Expression
+	"For every" var=Variable "from" val1=Expression "to" val2=Expression
 	instructions+=Instruction*
 	"That's what I did";
-
 //ForEachStatement:
 //	"For every" var=Variable "in" arrayValue=Literal "{"
 //	vars+=Variable*
