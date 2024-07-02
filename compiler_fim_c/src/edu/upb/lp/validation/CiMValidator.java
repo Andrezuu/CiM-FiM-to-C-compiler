@@ -1,103 +1,84 @@
 package edu.upb.lp.validation;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.validation.Check;
 
-import com.google.common.reflect.Parameter;
+import com.google.common.graph.ElementOrder.Type;
 
-import edu.upb.lp.ciM.CiMPackage;
-import edu.upb.lp.ciM.Comparison;
+import edu.upb.lp.ciM.BooleanArrayLiteral;
+import edu.upb.lp.ciM.BooleanExpression;
 import edu.upb.lp.ciM.Declaration;
 import edu.upb.lp.ciM.Expression;
-import edu.upb.lp.ciM.Function;
-import edu.upb.lp.ciM.FunctionCall;
-import edu.upb.lp.ciM.Instruction;
+import edu.upb.lp.ciM.IntArrayLiteral;
+import edu.upb.lp.ciM.IntExpression;
+import edu.upb.lp.ciM.IntLiteral;
 import edu.upb.lp.ciM.Program;
-import edu.upb.lp.ciM.Return;
+import edu.upb.lp.ciM.StringLiteral;
 import edu.upb.lp.ciM.Variable;
 import edu.upb.lp.ciM.VariableReference;
 
 public class CiMValidator extends AbstractCiMValidator {
-
-    // Validador para el nombre de la función
-    @Check
-    public void checkFunctionName(Function function) {
-        if (!function.getName().equals(function.getNameClose())) {
-            error("Function name and closing name must match",
-                  CiMPackage.Literals.FUNCTION__NAME_CLOSE);
+	
+	@Check
+    public void checkConstantExpressionValues(IntLiteral intLiteral) {
+        int value = intLiteral.getValue();
+        if (value < 0) {
+            error("Negativo ??? NO", intLiteral, null);
         }
     }
-
-    // Validador para la declaración de variables
-    @Check
-    public void checkUniqueVariableNames(Program program) {
-        Set<String> variableNames = new HashSet<>();
-        for (Declaration variable : program.getDeclarations()) {
-            if (!variableNames.add(variable.getName())) {
-                error("Variable '" + variable.getName() + "' is already declared",
-                      CiMPackage.Literals.VARIABLE__NAME);
-            }
+	
+	@Check
+    public void checkVariableDeclaration(VariableReference varRef) {
+        if (varRef.getVar() == null) {
+            error("Declara la variable, wey....", varRef, null);
         }
     }
-
-    // Validador para el tipo de retorno de una función
-    @Check
-    public void checkReturnType(Function function) {
-        if (function.getReturnType() != null && function.getInstructions() != null) {
-            for (Instruction instruction : function.getInstructions()) {
-                if (instruction instanceof Return) {
-                    Return returnStatement = (Return) instruction;
-                    if (!returnStatement.getVal().getType().equals(function.getReturnType())) {
-                        error("Return type does not match function's return type",
-                              CiMPackage.Literals.RETURN__VAL);
+	
+	@Check
+    public void checkDuplicateVariableDeclarations(Variable var) {
+        EObject container = var.eContainer();
+        if (container instanceof Program) {
+            Program program = (Program) container;
+            for (Declaration decl : program.getDeclarations()) {
+                if (decl instanceof Variable) {
+                    Variable otherVar = (Variable) decl;
+                    if (otherVar != var && otherVar.getName().equals(var.getName())) {
+                        error("Hay otra variable igual. Busca.... " + var.getName(), var, null);
                     }
                 }
             }
         }
     }
+	
+	
+	@Check
+    public void checkVariableDeclaration(Variable var) {
+        if (var.getName() == null || var.getName().isEmpty()) {
+            error("Variable name must be specified", var, null);
+        }
 
-    // Validador para la asignación de variables
-    @Check
-    public void checkVariableAssignment(Variable assignment) {
-        Expression varRef = assignment.getValue();
-        if (varRef != null && assignment.getValue() != null) {
-            if (!varRef.getVar().getType().equals(assignment.getValue().getType())) {
-                error("Variable type does not match assigned value type",
-                      CiMPackage.Literals.VARIABLE_ASSIGNMENT__VALUE);
+        // Validación de tipo de datos
+        String type = var.getType();
+        if (!(type.equals("Bool") || type.equals("Int") || type.equals("String") ||
+              type.equals("Int[]") || type.equals("Bool[]"))) {
+            error("Invalid type specified for variable", var, null);
+        }
+
+        // Validación de inicialización de variables
+        if (var.getValue() != null) {
+            Expression value = var.getValue();
+            if (type.equals("Int") && !(value instanceof IntExpression)) {
+                error("Y el INT???", var, null);
+            } else if (type.equals("Bool") && !(value instanceof BooleanExpression)) {
+                error("Y el Boolean ???", var, null);
+                error("Y el String ???", var, null);
+            } else if (type.equals("Int[]") && !(value instanceof IntArrayLiteral)) {
+                error("Wey esperabna un Int[], que paso?", var, null);
+            } else if (type.equals("Bool[]") && !(value instanceof BooleanArrayLiteral)) {
+                error("Wey esperaba un Bool[], que paso?", var, null);
             }
         }
     }
+	
 
-    // Validador para las comparaciones
-    @Check
-    public void checkComparison(Comparison comparison) {
-        if (comparison.getVal1().getType() != comparison.getVal2().getType()) {
-            error("Comparisons must be between expressions of the same type",
-                  CiMPackage.Literals.COMPARISON__VAL1);
-        }
-    }
-
-    // Validador para la llamada de funciones
-    @Check
-    public void checkFunctionCall(FunctionCall functionCall) {
-        if (functionCall.getFunction() != null) {
-            int paramSize = functionCall.getFunction().getParams().size();
-            int argSize = functionCall.getArgs().size();
-            if (paramSize != argSize) {
-                error("los parametros no son la misma cantidad",
-                      CiMPackage.Literals.FUNCTION_CALL__ARGS);
-            } else {
-                for (int i = 0; i < paramSize; i++) {
-                    Variable param = functionCall.getFunction().getParams().get(i);
-                    if (!param.getType().equals(functionCall.getArgs().get(i).getType())) {
-                        error("Argument type does not match parameter type",
-                              CiMPackage.Literals.FUNCTION_CALL__ARGS, i);
-                    }
-                }
-            }
-        }
-    }
 }
-
