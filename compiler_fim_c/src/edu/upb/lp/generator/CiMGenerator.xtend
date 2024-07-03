@@ -147,7 +147,7 @@ class CiMGenerator extends AbstractGenerator {
 	}
 
 	def dispatch processStatement(IfStatement ifStatement) '''
-		if ( «processBooleanExpression(ifStatement.condition)» ) {
+		if ( «processExpression(ifStatement.condition)» ) {
 		«FOR inst : ifStatement.instructions»«processInstruction(inst)»«ENDFOR»	} «IF ifStatement.^else !== null»«processStatement(ifStatement.^else as ElseStatement)»«ENDIF»
 	'''
 
@@ -226,24 +226,23 @@ class CiMGenerator extends AbstractGenerator {
 	// BOOLEAN EXPRESSIONS
 	def dispatch processBooleanExpression(BooleanLiteral booleanLiteral) {
 		processBooleanLiteral(booleanLiteral)
-
 	}
 
 	def dispatch processBooleanExpression(Comparison comparison) {
 		processComparison(comparison)
 	}
 	
-	def dispatch processBooleanExpression(Variable variable) {
-		processExpression(variable.value)
+	def dispatch processBooleanExpression(VariableReference varRef) {
+		'''«varRef.^var.name»'''
 	}
 
 	// BOOLEAN LITERALS
 	def dispatch processBooleanLiteral(TrueLiteral trueLiteral) {
-		'''«trueLiteral.value»'''
+		'''true'''
 	}
 
 	def dispatch processBooleanLiteral(FalseLiteral falseLiteral) {
-		'''«falseLiteral.value»'''
+		'''false'''
 	}
 
 	// COMPARISONS

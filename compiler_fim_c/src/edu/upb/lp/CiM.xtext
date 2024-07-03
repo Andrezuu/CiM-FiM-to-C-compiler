@@ -53,13 +53,13 @@ StringLiteral:
 	{StringLiteral} value=STRING;
 
 BooleanLiteral:
-	value=(TrueLiteral | FalseLiteral);
+	TrueLiteral | FalseLiteral;
 
 TrueLiteral:
-	{TrueLiteral} (value?=('yes' | 'true' | 'right' | 'correct'));
+	(value?=('yes' | 'true' | 'right' | 'correct'));
 
 FalseLiteral:
-	{FalseLiteral} (value?=('no' | 'false' | 'incorrect' | 'wrong'));
+	(value?=('no' | 'false' | 'incorrect' | 'wrong'));
 
 IntArrayLiteral:
 	'[' values+=INT (',' values+=INT)* ']';
