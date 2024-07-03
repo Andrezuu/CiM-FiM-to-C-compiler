@@ -170,8 +170,8 @@ class CiMGenerator extends AbstractGenerator {
 
 	def dispatch processStatement(Input inputStatement) {
 		'''
-			«IF inputStatement.prompt !== null»cout<<«inputStatement.prompt»;«ENDIF»
-			cin>>«inputStatement.getVar()»;
+			«IF inputStatement.prompt !== null»cout<<"«inputStatement.prompt»";«ENDIF»
+			cin>>«inputStatement.getVar().name»;
 		'''
 	}
 
