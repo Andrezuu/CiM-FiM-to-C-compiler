@@ -102,11 +102,14 @@ class CiMGenerator extends AbstractGenerator {
 	def dispatch processInstruction(Decrement decrement) {
 		'''«decrement.^var.name»--;'''
 	}
+	
+	def dispatch processInstruction(Variable variable) {
+		processVariable(variable)
+	}
 
 	def processMainFunction(MainFunction mainFunction) {
 		'''
 			int main() {
-			«FOR vari: mainFunction.vars»«processVariable(vari)»«ENDFOR»
 			«FOR inst : mainFunction.instructions»«processInstruction(inst)»«ENDFOR»
 			return 0;
 			}
@@ -201,7 +204,7 @@ class CiMGenerator extends AbstractGenerator {
 		'''
 			do {
 				«FOR inst : doWhileStatement.instructions»«processInstruction(inst)»«ENDFOR»
-			} while(«processExpression(doWhileStatement.condition)») 
+			} while(«processExpression(doWhileStatement.condition)»);
 		'''
 	}
 

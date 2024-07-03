@@ -11,18 +11,20 @@ Program:
 
 MainFunction:
 	"Today I learned" name=ID "{"
-	(vars+=Variable | instructions+=Instruction)*
+//	(vars+=Variable | instructions+=Instruction)*
+	instructions+=Instruction*
 	"Thats all about" nameClose=ID
 	"}";
 
 Function:
 	"I learned" name=ID 'using'? '(' (params+=Parameter (',' params+=Parameter)*)? ')' ('with'
 	returnType=Type)? "{"
-	(vars+=Variable | instructions+=Instruction)*
+//	(vars+=Variable | instructions+=Instruction)*
+	instructions+=Instruction*
 	"Thats all about" nameClose=ID "}";
 
 Instruction:
-	Statement | FunctionCall | Return | Increment | Decrement;
+	Statement | FunctionCall | Return | Increment | Decrement | Variable;
 
 Return:
 	"Then you get" val=Expression;
@@ -68,8 +70,8 @@ BooleanArrayLiteral:
 	'[' values+=BooleanLiteral (',' values+=BooleanLiteral)* ']';
 
 Variable:
-	("Did you know")? name=ID
-	(("is" | "was" | "has" | "had" | "like" | "likes" | "liked"))? type=Type (value=Expression)? ".";
+	("Did you know that")? name=ID
+	(("is" | "was" | "has" | "had" | "like" | "likes" | "liked"))? type=Type "("? (value=Expression)? ")"? ".";
 
 VariableReference:
 	var=[Variable];
