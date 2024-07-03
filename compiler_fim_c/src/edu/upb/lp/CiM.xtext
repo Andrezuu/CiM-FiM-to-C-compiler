@@ -37,7 +37,7 @@ Parameter returns Variable:
 	name=ID ":" type=Type;
 
 Type:
-	"Bool" | "Int" | "String" | "Int[]" | "Bool[]";
+	"Bool" | "Int" | "String" | "Int[]" | "Bool[]" ;
 
 Expression:
 	NoTypeExpression | IntExpression | BooleanExpression | StringLiteral | IntArrayLiteral | BooleanArrayLiteral;
